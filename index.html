@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHANTOMRA.IN — GENERATIVE PHANTOM REALMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #ff2222;
+    --white: #ffffff;
+    --black: #000000;
+    --mono: 'Space Mono', monospace;
+    --grotesk: 'Space Grotesk', system-ui, sans-serif;
+    --border: 1px solid rgba(255,255,255,0.8);
+    --frame: 12px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--mono);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── Canvas ── */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Viewport frame ── */
+  #frame {
+    position: fixed;
+    top: var(--frame); left: var(--frame);
+    right: var(--frame); bottom: var(--frame);
+    border: var(--border);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* ── Top chrome bar ── */
+  #chrome-top {
+    position: fixed;
+    top: var(--frame); left: var(--frame); right: var(--frame);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: rgba(0,0,0,0.7);
+    border-bottom: var(--border);
+    z-index: 11;
+    pointer-events: none;
+  }
+
+  .chrome-icon {
+    font-family: var(--mono);
+    font-size: 10px;
+    opacity: 0.6;
+    letter-spacing: 2px;
+  }
+
+  /* ── Bottom status bar ── */
+  #chrome-bottom {
+    position: fixed;
+    bottom: var(--frame); left: var(--frame); right: var(--frame);
+    height: 24px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* left · true-center · right */
+    align-items: center;
+    padding: 0 16px;
+    background: rgba(0,0,0,0.7);
+    border-top: var(--border);
+    z-index: 11;
+    font-family: var(--mono);
+    font-size: 10px;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    pointer-events: none;
+  }
+
+  /* Right column: player + clock pushed to the far right */
+  #chrome-bottom-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+  }
+
+  /* ── Music player (lives inside bottom bar) ── */
+  #player {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    pointer-events: auto; /* override bar's none so controls are clickable */
+  }
+
+  #player-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: 0;
+    cursor: pointer;
+    padding: 0;
+    opacity: 1;
+    transition: color 0.15s;
+  }
+
+  #player-btn:hover { color: var(--white); filter: brightness(1.6); }
+
+  #player-track {
+    letter-spacing: 1px;
+    opacity: 0.75;
+    min-width: 88px;
+  }
+
+  #player-time {
+    opacity: 0.55;
+    min-width: 26px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Seek/progress slider */
+  #player-seek {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 108px;
+    height: 2px;
+    background: rgba(255,255,255,0.22);
+    outline: none;
+    cursor: pointer;
+    border-radius: 0;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  #player-seek::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5px;
+    height: 5px;
+    background: var(--white);
+    border-radius: 0; /* square — matches brutalist aesthetic */
+    cursor: pointer;
+  }
+
+  #player-seek::-moz-range-thumb {
+    width: 5px;
+    height: 5px;
+    background: var(--white);
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    #player-track { display: none; }
+    #player-seek  { width: 60px; }
+  }
+
+  /* ── Main scroll container ── */
+  #main {
+    position: relative;
+    z-index: 5;
+    padding: calc(var(--frame) + 32px + 20px) 60px calc(var(--frame) + 24px + 20px);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ── Hero ── */
+  #hero {
+    min-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 0 80px;
+  }
+
+  .hero-title {
+    font-family: var(--grotesk);
+    font-size: clamp(56px, 10vw, 140px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    color: var(--white);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    white-space: nowrap; /* prevent glitch chars from ever causing a line wrap */
+  }
+
+  .hero-subtitle {
+    font-family: var(--mono);
+    font-size: clamp(10px, 1.5vw, 14px);
+    letter-spacing: 4px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white);
+    border: var(--border);
+    background: transparent;
+    padding: 14px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+
+  .cta-btn:hover {
+    background: var(--white);
+    color: var(--black);
+    border-color: var(--red);
+    box-shadow: 0 0 12px var(--red), 0 0 2px var(--red);
+  }
+
+  /* ── Sections ── */
+  section {
+    padding: 100px 0 60px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-header {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--white);
+    margin-bottom: 48px;
+    text-transform: uppercase;
+  }
+
+  /* ── Work grid ── */
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+  }
+
+  .project-card {
+    border: var(--border);
+    padding: 32px;
+    transition: border-color 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+
+  .project-card:hover {
+    border-color: var(--red);
+    background: rgba(255,34,34,0.04);
+  }
+
+  .project-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    opacity: 0.4;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .project-title {
+    font-family: var(--grotesk);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .project-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    opacity: 0.6;
+    line-height: 1.8;
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+  }
+
+  .project-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--white);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+  }
+
+  .project-link:hover { opacity: 1; }
+
+  /* ── Contact ── */
+  .contact-block {
+    border: var(--border);
+    padding: 40px;
+    max-width: 600px;
+    font-family: var(--mono);
+  }
+
+  .contact-copy {
+    font-size: 11px;
+    opacity: 0.6;
+    line-height: 1.9;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+
+  .contact-email {
+    font-size: 14px;
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: opacity 0.15s;
+  }
+
+  .contact-email:hover { opacity: 0.7; }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--white);
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  /* Hero cursor — scales to match the big grotesque headline */
+  .cursor-blink--hero {
+    width: clamp(18px, 0.55em, 66px);
+    height: 0.82em;
+    margin-left: 6px;
+    vertical-align: -0.05em;
+    /* cursor is hidden until typing starts, then stays visible */
+    opacity: 0;
+  }
+
+  .cursor-blink--hero.typing,
+  .cursor-blink--hero.done {
+    opacity: 1;
+  }
+
+  .cursor-blink--hero.done {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── Links ── */
+  .links-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .links-list a {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--white);
+    text-decoration: none;
+    opacity: 0.7;
+    text-transform: uppercase;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .links-list a:hover {
+    opacity: 1;
+    border-color: var(--red);
+    color: var(--white);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    #main { padding-left: 28px; padding-right: 28px; }
+    .work-grid { grid-template-columns: 1fr; }
+    .contact-block { padding: 24px; }
+    #chrome-bottom .coord { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    #main { padding-left: 20px; padding-right: 20px; }
+    .hero-title { letter-spacing: -1px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- Viewport frame -->
+<div id="frame"></div>
+
+<!-- Top chrome -->
+<div id="chrome-top">
+  <span class="chrome-icon">&#9776; &nbsp;MENU</span>
+  <span class="chrome-icon">PHANTOMRA.IN</span>
+  <span class="chrome-icon">&#8212; &nbsp;[ ]</span>
+</div>
+
+<!-- Bottom status bar -->
+<div id="chrome-bottom">
+  <span>©PHANTOMRA.IN</span>
+  <span class="coord">ZPHANTOMRA.IN 2026</span>
+  <!-- Right column: player + clock -->
+  <div id="chrome-bottom-right">
+    <div id="player">
+      <button id="player-btn" title="Play / Pause">▶</button>
+      <span id="player-track">CHROMEDREAM</span>
+      <input type="range" id="player-seek" min="0" max="100" value="0" step="0.1">
+      <span id="player-time">0:00</span>
+    </div>
+    <span id="status-clock">00/00::0000+</span>
+  </div>
+</div>
+
+<!-- Main content -->
+<div id="main">
+
+  <!-- Hero -->
+  <section id="hero" style="opacity:1;transform:none;">
+    <div class="hero-title"><span id="hero-text"></span><span class="cursor-blink cursor-blink--hero" id="hero-cursor"></span></div>
+    <div class="hero-subtitle">// &nbsp;The drips before the dream</div>
+    <a href="#work" class="cta-btn">ENTER THE MESH</a>
+  </section>
+
+  <!-- Work -->
+  <section id="work">
+    <div class="section-header">// WORK</div>
+    <div class="work-grid">
+      <div class="project-card">
+        <div class="project-num">PRJ_001</div>
+        <div class="project-title">Terrain Engine</div>
+        <div class="project-desc">Real-time procedural landscape generation via stacked simplex noise layers. WebGL renderer with custom GLSL shader pipeline.</div>
+        <a href="#" class="project-link">VIEW &nbsp;→</a>
+      </div>
+      <div class="project-card">
+        <div class="project-num">PRJ_002</div>
+        <div class="project-title">Signal Drift</div>
+        <div class="project-desc">Audio-reactive particle field synced to live frequency analysis. 50k particles, 60fps, no GPU acceleration required.</div>
+        <a href="#" class="project-link">VIEW &nbsp;→</a>
+      </div>
+      <div class="project-card">
+        <div class="project-num">PRJ_003</div>
+        <div class="project-title">Void Protocol</div>
+        <div class="project-desc">Cellular automata system with emergent behaviour rules. Seeds grow, compete, collapse — run on a 512×512 grid at 30 steps/sec.</div>
+        <a href="#" class="project-link">VIEW &nbsp;→</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="section-header">// CONTACT</div>
+    <div class="contact-block">
+      <div class="contact-copy">Transmission received. If you're building something strange and real,<br>reach through the mesh.</div>
+      <a href="mailto:hello@phantomra.in" class="contact-email">hello@phantomra.in</a><span class="cursor-blink"></span>
+    </div>
+  </section>
+
+  <!-- Links -->
+  <section id="links">
+    <div class="section-header">// LINKS</div>
+    <ul class="links-list">
+      <li><a href="https://github.com/" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://x.com/" target="_blank" rel="noopener">Twitter/X</a></li>
+      <li><a href="https://are.na/" target="_blank" rel="noopener">Are.na</a></li>
+      <li><a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a></li>
+    </ul>
+  </section>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// SIMPLEX NOISE (2D) — minimal inline implementation
+// Based on Stefan Gustavson's public domain algorithm
+// ═══════════════════════════════════════════════════════
+const Noise = (() => {
+  const perm = new Uint8Array(512);
+  const g3 = [
+    [1,1],[-1,1],[1,-1],[-1,-1],
+    [1,0],[-1,0],[0,1],[0,-1]
+  ];
+
+  function seed(s) {
+    const p = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) p[i] = i;
+    let n = s | 0;
+    for (let i = 255; i > 0; i--) {
+      n = (n * 1664525 + 1013904223) & 0xffffffff;
+      const j = ((n >>> 0) % (i + 1));
+      [p[i], p[j]] = [p[j], p[i]];
+    }
+    for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+  }
+
+  function dot2(g, x, y) { return g[0]*x + g[1]*y; }
+
+  function noise2(xin, yin) {
+    const F2 = 0.5 * (Math.sqrt(3) - 1);
+    const G2 = (3 - Math.sqrt(3)) / 6;
+    const s = (xin + yin) * F2;
+    const i = Math.floor(xin + s);
+    const j = Math.floor(yin + s);
+    const t = (i + j) * G2;
+    const X0 = i - t, Y0 = j - t;
+    const x0 = xin - X0, y0 = yin - Y0;
+    let i1, j1;
+    if (x0 > y0) { i1 = 1; j1 = 0; } else { i1 = 0; j1 = 1; }
+    const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+    const x2 = x0 - 1 + 2*G2, y2 = y0 - 1 + 2*G2;
+    const ii = i & 255, jj = j & 255;
+    const gi0 = perm[ii +     perm[jj    ]] % 8;
+    const gi1 = perm[ii + i1 + perm[jj+j1]] % 8;
+    const gi2 = perm[ii + 1  + perm[jj+ 1]] % 8;
+    let t0 = 0.5 - x0*x0 - y0*y0;
+    const n0 = t0 < 0 ? 0 : (t0 *= t0, t0*t0 * dot2(g3[gi0], x0, y0));
+    let t1 = 0.5 - x1*x1 - y1*y1;
+    const n1 = t1 < 0 ? 0 : (t1 *= t1, t1*t1 * dot2(g3[gi1], x1, y1));
+    let t2 = 0.5 - x2*x2 - y2*y2;
+    const n2 = t2 < 0 ? 0 : (t2 *= t2, t2*t2 * dot2(g3[gi2], x2, y2));
+    return 70 * (n0 + n1 + n2); // range [-1, 1]
+  }
+
+  seed(42);
+  return { noise2, seed };
+})();
+
+// ═══════════════════════════════════════════════════════
+// CANVAS SETUP
+// ═══════════════════════════════════════════════════════
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2;
+  cy = H / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ═══════════════════════════════════════════════════════
+// PERSPECTIVE PROJECTION
+// Projects a 3D point (x, y, z) onto 2D screen space.
+// fov controls field of view strength.
+// Camera is centred at (cx, cy) looking down -Z.
+// ═══════════════════════════════════════════════════════
+const FOV = 500; // focal length in pixels
+
+function project(x3, y3, z3) {
+  // z3 is depth: larger = farther away
+  const scale = FOV / (FOV + z3);
+  return {
+    sx: cx + x3 * scale,
+    sy: cy + y3 * scale,
+    scale
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// TERRAIN MESH — top-down perspective view
+//
+// The grid lies in the XZ world plane; Y is height from noise.
+// We simulate a camera pitched ~68° downward (nearly overhead)
+// by applying a rotation around the X axis before projecting.
+//
+// Rotation math (pitch by angle θ):
+//   ry = y·cos(θ) − z·sin(θ)   →  screen-space vertical
+//   rz = y·sin(θ) + z·cos(θ)   →  depth (must stay > 0)
+// Then standard perspective: scale = T_FOV / (T_FOV + rz)
+//
+// z3 = negative → near edge (screen bottom)
+// z3 = positive → far edge  (screen top, foreshortened)
+// ═══════════════════════════════════════════════════════
+// Keep these for the particle system (horizon-space) — do not remove
+const SPREAD_X       = 900;
+const SPREAD_Z       = 900;
+const Z_NEAR         = 50;
+const Z_FAR          = Z_NEAR + SPREAD_Z;
+const TERRAIN_Y_BASE = 160;
+
+// ── Terrain constants ────────────────────────────────────
+const T_NOISE_AMP   = 240;   // Y displacement amplitude — large for dramatic peaks/troughs
+const T_NOISE_SCALE = 0.0024; // Absolute world-space noise frequency.
+                               // Larger screens reveal more terrain — pattern does NOT scale with viewport.
+const T_FOV         = 620;
+const T_DEPTH       = 520;    // lower base depth → amplitude is a larger fraction → dramatic scale shift
+const T_BLEED       = 1.25;  // grid extends this fraction past each viewport edge
+
+// Fixed world-unit cell size — determines apparent square size on screen.
+// Larger viewport → more cells, same physical size per cell.
+// Capped at MAX_GRID_* to keep perf reasonable on very large monitors.
+const T_CELL_SIZE   = 44;    // world units per cell ≈ 19px on a 1440p screen
+const MAX_GRID_X    = 140;
+const MAX_GRID_Z    = 110;
+
+// Pitch angle: 90° = camera looking dead straight down.
+//   ry = -z3   → world-Z maps 1-to-1 to screen-Y
+//   rz = y3 + T_DEPTH → noise height creates subtle scale breathing
+const T_COS = 0;
+const T_SIN = 1;
+
+function projectTerrain(x3, y3, z3) {
+  const ry    = -z3;
+  const rz    = y3 + T_DEPTH;
+  const scale = T_FOV / (T_FOV + rz);
+  return { sx: cx + x3 * scale, sy: cy + ry * scale, scale };
+}
+
+let terrainTime = 0;
+
+function buildTerrainVertices(t) {
+  // Half-extents still scale with the viewport so the grid always fills it.
+  const inv   = (T_FOV + T_DEPTH) / T_FOV; // = world units per screen-pixel (at nominal depth)
+  const halfX = (W / 2) * inv * T_BLEED;
+  const halfZ = (H / 2) * inv * T_BLEED;
+
+  // Cell count derived from fixed cell size — scales with viewport size.
+  // More cells on a bigger monitor; same apparent square size everywhere.
+  const gridX = Math.min(Math.ceil((halfX * 2) / T_CELL_SIZE), MAX_GRID_X);
+  const gridZ = Math.min(Math.ceil((halfZ * 2) / T_CELL_SIZE), MAX_GRID_Z);
+
+  const verts = [];
+
+  for (let iz = 0; iz <= gridZ; iz++) {
+    const row = [];
+    const z3 = -halfZ + (iz / gridZ) * halfZ * 2;
+    for (let ix = 0; ix <= gridX; ix++) {
+      const x3 = -halfX + (ix / gridX) * halfX * 2;
+
+      const nx = x3 * T_NOISE_SCALE;
+      const nz = z3 * T_NOISE_SCALE;
+
+      const wc = audioMod.waveComplexity;
+      const h =
+        Math.sin(2.10 * ( nx * 1.000 + nz * 0.000) + t * 0.85) * 0.40 +
+        Math.sin(1.65 * ( nx * 0.707 + nz * 0.707) + t * 0.65) * 0.30 +
+        Math.sin(2.75 * (-nx * 0.500 + nz * 0.866) + t * 1.05) * 0.18 * wc +
+        Math.sin(1.30 * (-nx * 0.940 - nz * 0.342) + t * 0.55) * 0.12 * wc +
+        Math.sin(3.40 * ( nx * 0.174 - nz * 0.985) + t * 1.35) * 0.06 * wc;
+
+      const rough = Noise.noise2(nx * 1.6 + t * 0.18, nz * 1.6 + t * 0.14) * 0.13;
+      const y3    = (h + rough) * audioMod.noiseAmp;
+
+      row.push({ x3, y3, z3 });
+    }
+    verts.push(row);
+  }
+
+  return { verts, gridX, gridZ, halfX, halfZ };
+}
+
+function drawTerrain(t) {
+  const { verts, gridX, gridZ, halfX, halfZ } = buildTerrainVertices(t);
+
+  ctx.strokeStyle = '#ffffff';
+  ctx.globalAlpha = audioMod.meshAlpha;
+  ctx.lineWidth   = 0.3;
+
+  for (let iz = 0; iz <= gridZ; iz++) {
+    ctx.beginPath();
+    for (let ix = 0; ix <= gridX; ix++) {
+      const { sx, sy } = projectTerrain(verts[iz][ix].x3, verts[iz][ix].y3, verts[iz][ix].z3);
+      if (ix === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+  }
+
+  for (let ix = 0; ix <= gridX; ix++) {
+    ctx.beginPath();
+    for (let iz = 0; iz <= gridZ; iz++) {
+      const { sx, sy } = projectTerrain(verts[iz][ix].x3, verts[iz][ix].y3, verts[iz][ix].z3);
+      if (iz === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.lineWidth   = 1;
+}
+
+// ═══════════════════════════════════════════════════════
+// PARTICLE FIELD
+// Particles live in 3D space above the terrain.
+// Each has a random velocity; they wrap at viewport edges.
+// Centre particles appear larger (simple depth cue).
+// Some emit a short trail.
+// ═══════════════════════════════════════════════════════
+const PARTICLE_COUNT = 400;
+const particles = [];
+
+function makeParticle() {
+  return {
+    x3: (Math.random() - 0.5) * SPREAD_X * 2,
+    y3: (Math.random() - 0.5) * 300 + TERRAIN_Y_BASE - 200,
+    z3: Math.random() * SPREAD_Z * 0.9 + Z_NEAR,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.15,
+    vz: (Math.random() - 0.5) * 0.3,
+    trail:    Math.random() < 0.12,  // ~12% have trails
+    reactive: Math.random() < 0.35,  // ~35% pulse with music
+    pulse:    0                       // current pulse value, lerped each frame
+  };
+}
+
+for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(makeParticle());
+
+function drawParticles() {
+  for (const p of particles) {
+    // Advance position
+    p.x3 += p.vx;
+    p.y3 += p.vy;
+    p.z3 += p.vz;
+
+    // Wrap depth
+    if (p.z3 > Z_FAR)  p.z3 = Z_NEAR;
+    if (p.z3 < Z_NEAR) p.z3 = Z_FAR;
+    // Wrap horizontal
+    if (p.x3 >  SPREAD_X) p.x3 = -SPREAD_X;
+    if (p.x3 < -SPREAD_X) p.x3 =  SPREAD_X;
+
+    const proj = project(p.x3, p.y3, p.z3);
+
+    // Depth-based brightness: closer (smaller z) = brighter
+    const depthT = 1 - (p.z3 - Z_NEAR) / SPREAD_Z; // 0..1
+    const alpha  = 0.25 + depthT * 0.65;
+    const radius = 1.2 + depthT * 2.4;
+
+    // Centre proximity glow
+    const distCentre = Math.hypot(proj.sx - cx, proj.sy - cy) / Math.hypot(cx, cy);
+    const glowBoost  = Math.max(0, 1 - distCentre * 1.6) * 0.35;
+    const finalAlpha = Math.min(1, (alpha + glowBoost) * audioMod.particleBoost);
+
+    // Trail
+    if (p.trail) {
+      const trailLen = 7;
+      const tx = proj.sx - p.vx * proj.scale * trailLen;
+      const ty = proj.sy - p.vy * proj.scale * trailLen;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(proj.sx, proj.sy);
+      ctx.strokeStyle = `rgba(255,255,255,${finalAlpha * 0.35})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    // Pulse reactive particles — threshold floors the signal so particles
+    // fully decay back to rest between beats rather than hovering up
+    if (p.reactive) {
+      const raw = audioReactive.bass * 5.0 + audioReactive.mid * 2.0;
+      const target = raw > 0.15 ? Math.min(1, raw) : 0;
+      p.pulse = p.pulse + (target - p.pulse) * (target > p.pulse ? 0.4 : 0.07);
+    }
+    // Reactive particles brighten on beats, size stays fixed at new baseline
+    const pulseRadius = radius;
+    const pulseAlpha  = p.reactive ? Math.min(1, finalAlpha + p.pulse * 0.55) : finalAlpha;
+
+    // Dot
+    ctx.beginPath();
+    ctx.arc(proj.sx, proj.sy, pulseRadius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(239,11,11,${pulseAlpha})`;
+    ctx.fill();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RAIN PARTICLE FIELD
+// Pure 2D overlay — straight falling streaks across the
+// full viewport. Each drop has a "layer" value (0=far,
+// 1=near) that drives speed, length, and opacity so
+// background rain reads as distant and foreground as close.
+// A small wind angle (~5°) gives the diagonal lean of
+// real rain; drops wrap back to the top on exit.
+// ═══════════════════════════════════════════════════════
+const RAIN_COUNT = 200;
+const RAIN_WIND  = 0.09; // radians from vertical ≈ 5° lean
+
+const rainDrops = [];
+
+function makeRainDrop(scatterY) {
+  const layer   = Math.random();           // 0 = far/slow, 1 = near/fast
+  const speed   = 4 + layer * 9;          // px per frame at 60fps
+  const length  = 6 + layer * 20;         // streak length in px
+  const opacity = 0.05 + layer * 0.24;    // ~20% brighter than original
+  const width   = 0.4 + layer * 0.55;     // line thickness
+  return {
+    x: Math.random() * (W + 100) - 50,
+    y: scatterY ? Math.random() * H : -length - Math.random() * H * 0.4,
+    dx: Math.sin(RAIN_WIND) * speed,      // horizontal drift per frame
+    dy: Math.cos(RAIN_WIND) * speed,      // vertical fall per frame
+    length, opacity, width
+  };
+}
+
+// Initialise with drops already scattered across the viewport
+for (let i = 0; i < RAIN_COUNT; i++) rainDrops.push(makeRainDrop(true));
+
+// Rebuild rain array on resize so drops cover the new dimensions
+window.addEventListener('resize', () => {
+  rainDrops.length = 0;
+  for (let i = 0; i < RAIN_COUNT; i++) rainDrops.push(makeRainDrop(true));
+});
+
+function drawRain() {
+  for (const r of rainDrops) {
+    r.x += r.dx;
+    r.y += r.dy;
+
+    // Recycle drop when it has fully left the bottom of the viewport
+    if (r.y - r.length > H) {
+      r.y = -r.length;
+      r.x = Math.random() * (W + 100) - 50;
+    }
+
+    // Draw as a short angled line in the direction of travel
+    ctx.beginPath();
+    ctx.moveTo(r.x, r.y);
+    ctx.lineTo(r.x - Math.sin(RAIN_WIND) * r.length,
+               r.y - Math.cos(RAIN_WIND) * r.length);
+    ctx.strokeStyle = `rgba(255,255,255,${Math.min(1, r.opacity * audioMod.rainBoost)})`;
+    ctx.lineWidth   = r.width;
+    ctx.stroke();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// ANIMATION LOOP
+// ═══════════════════════════════════════════════════════
+let lastTime = 0;
+
+// Audio-modulated scene parameters — these sit between the raw
+// constants and the draw functions so nothing else needs changing.
+const audioMod = {
+  noiseAmp:      T_NOISE_AMP, // lerps toward T_NOISE_AMP * bassScale
+  timeScale:     1.0,         // multiplier on dt → terrain animation speed
+  rainBoost:     1.0,         // multiplier on rain opacity
+  particleBoost: 1.0,         // multiplier on particle alpha
+  meshAlpha:     0.17,        // terrain grid globalAlpha — flashes on highs
+  waveComplexity: 1.0,        // scales higher-freq wave layers on mids
+};
+
+function animate(now) {
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+
+  // ── Pull fresh audio data ──────────────────────────────
+  updateAudioReactive();
+  const { bass, mid, high } = audioReactive;
+
+  // Bass: 30% dialled back from aggressive version
+  const targetAmp = T_NOISE_AMP * (1.0 + bass * 1.54);
+  audioMod.noiseAmp = audioMod.noiseAmp + (targetAmp - audioMod.noiseAmp) * 0.126;
+
+  // Mid: 30% dialled back
+  const targetSpeed = 1.0 + mid * 1.26;
+  audioMod.timeScale = audioMod.timeScale + (targetSpeed - audioMod.timeScale) * 0.098;
+  const targetComplexity = 1.0 + mid * 1.75;
+  audioMod.waveComplexity = audioMod.waveComplexity + (targetComplexity - audioMod.waveComplexity) * 0.098;
+
+  // High: flash terrain mesh brightness (rain stays untouched)
+  const targetAlpha = 0.17 + high * 0.52;
+  audioMod.meshAlpha = audioMod.meshAlpha + (targetAlpha - audioMod.meshAlpha) * 0.22;
+  audioMod.particleBoost = 1.0 + high * 1.5;
+  audioMod.rainBoost = 1.0;
+
+  // ── Advance time ───────────────────────────────────────
+  terrainTime += dt * audioMod.timeScale;
+
+  ctx.clearRect(0, 0, W, H);
+
+  drawTerrain(terrainTime);
+  drawParticles();
+  drawRain();
+
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+
+// ═══════════════════════════════════════════════════════
+// STATUS CLOCK — fake coordinate readout
+// ═══════════════════════════════════════════════════════
+const clockEl = document.getElementById('status-clock');
+function updateClock() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mn = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  clockEl.textContent = `${mm}/${dd}::${hh}${mn}+${ss}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ═══════════════════════════════════════════════════════
+// AUDIO ANALYSER — connects to the music player and
+// exposes smoothed bass / mid / high values (0..1) that
+// the render loop uses to modulate the visual scene.
+//
+// audioReactive.bass  → mesh height amplitude
+// audioReactive.mid   → terrain animation speed
+// audioReactive.high  → rain + particle intensity
+//
+// AudioContext is created lazily on first play to satisfy
+// browser autoplay policy. Until then all values are 0.
+// ═══════════════════════════════════════════════════════
+const audioReactive = { bass: 0, mid: 0, high: 0 };
+
+let _audioCtx = null, _analyser = null, _freqData = null;
+
+function initAudioContext(audioEl) {
+  if (_audioCtx) return;
+  _audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+  _analyser  = _audioCtx.createAnalyser();
+  _analyser.fftSize = 256;                  // 128 frequency bins
+  _analyser.smoothingTimeConstant = 0.82;   // inter-frame smoothing from Web Audio
+  _freqData  = new Uint8Array(_analyser.frequencyBinCount);
+
+  const src = _audioCtx.createMediaElementSource(audioEl);
+  src.connect(_analyser);
+  _analyser.connect(_audioCtx.destination);
+}
+
+// Called once per animation frame — updates audioReactive.*
+// Uses additional JS-side lerp so values ease rather than snap.
+function updateAudioReactive() {
+  if (!_analyser) { return; }
+
+  _analyser.getByteFrequencyData(_freqData);   // fills 0-255 per bin
+  const bins = _freqData.length;               // 128 bins
+
+  // Map frequency bins to musical bands
+  // Bass:  bins 0–5   (~0–500 Hz)
+  // Mid:   bins 6–40  (~500–4k Hz)
+  // High:  bins 41–90 (~4k–10k Hz)
+  function avg(lo, hi) {
+    let sum = 0;
+    for (let i = lo; i < hi; i++) sum += _freqData[i];
+    return sum / ((hi - lo) * 255);  // normalise to 0..1
+  }
+
+  const targetBass = avg(0, 6);
+  const targetMid  = avg(6, 40);
+  const targetHigh = avg(41, 90);
+
+  // Smooth in JS (on top of Web Audio's own smoothing):
+  // attack fast, decay slower — feels punchy but not twitchy
+  const attack = 0.35, decay = 0.12;
+  function lerp(cur, tgt) {
+    return tgt > cur
+      ? cur + (tgt - cur) * attack
+      : cur + (tgt - cur) * decay;
+  }
+
+  audioReactive.bass = lerp(audioReactive.bass, targetBass);
+  audioReactive.mid  = lerp(audioReactive.mid,  targetMid);
+  audioReactive.high = lerp(audioReactive.high, targetHigh);
+}
+
+// ═══════════════════════════════════════════════════════
+// MUSIC PLAYER
+// Playlist cycles through Music/ folder tracks.
+// Seek slider background is updated via JS gradient so the
+// filled/unfilled split stays in sync with playback position.
+// ═══════════════════════════════════════════════════════
+(function () {
+  const PLAYLIST = [
+    { src: 'Music/monochromerain.mp3', label: 'MONOCHROMERAIN' },
+    { src: 'Music/chromedream.mp3',  label: 'CHROMEDREAM'  }
+  ];
+
+  let trackIdx = 0;
+  const audio = new Audio();
+  audio.volume = 1;
+
+  const btn       = document.getElementById('player-btn');
+  const seekEl    = document.getElementById('player-seek');
+  const trackEl   = document.getElementById('player-track');
+  const timeEl    = document.getElementById('player-time');
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    return m + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  }
+
+  function setSeekFill(pct) {
+    // Filled portion slightly brighter than the empty track
+    seekEl.style.background =
+      `linear-gradient(to right, rgba(255,255,255,0.85) ${pct}%, rgba(255,255,255,0.22) ${pct}%)`;
+  }
+
+  function loadTrack(idx, autoplay) {
+    trackIdx = idx % PLAYLIST.length;
+    audio.src = PLAYLIST[trackIdx].src;
+    trackEl.textContent = PLAYLIST[trackIdx].label;
+    seekEl.value = 0;
+    timeEl.textContent = '0:00';
+    setSeekFill(0);
+    if (autoplay) audio.play().catch(() => {});
+  }
+
+  // Sync slider and time display during playback
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    seekEl.value = pct;
+    timeEl.textContent = fmt(audio.currentTime);
+    setSeekFill(pct);
+  });
+
+  // Auto-advance to next track
+  audio.addEventListener('ended', () => loadTrack(trackIdx + 1, true));
+
+  // Update button icon to reflect actual playback state
+  audio.addEventListener('play',  () => { btn.textContent = '▐▐'; });
+  audio.addEventListener('pause', () => { btn.textContent = '▶';  });
+
+  // Play / Pause toggle — init AudioContext on first interaction
+  // (browser requires a user gesture before AudioContext can start)
+  btn.addEventListener('click', () => {
+    initAudioContext(audio);
+    if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+    if (audio.paused) audio.play().catch(() => {});
+    else audio.pause();
+  });
+
+  // Seek on slider drag
+  seekEl.addEventListener('input', () => {
+    if (!audio.duration) return;
+    audio.currentTime = (seekEl.value / 100) * audio.duration;
+    setSeekFill(Number(seekEl.value));
+  });
+
+  // Load first track (not autoplaying — browser autoplay policy)
+  loadTrack(0, false);
+})();
+
+// ═══════════════════════════════════════════════════════
+// SCROLL-TRIGGERED FADE-IN (IntersectionObserver)
+// ═══════════════════════════════════════════════════════
+const observer = new IntersectionObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  }
+}, { threshold: 0.1 });
+
+document.querySelectorAll('section:not(#hero)').forEach(s => observer.observe(s));
+
+// ═══════════════════════════════════════════════════════
+// TEXT GLITCH
+// Periodically corrupts a handful of random letters in
+// a target element, flickers them rapidly, then snaps
+// back to the canonical string.
+//
+// Only [a-zA-Z0-9] positions are eligible — punctuation,
+// slashes, spaces and special chars stay stable so the
+// structural identity of the text never breaks.
+//
+// Usage: startGlitch(element, options)
+// Options (all optional):
+//   corruptCount  — chars to scramble per event  (default 2)
+//   flickers      — swap count before restore     (default 3)
+//   flickerMs     — ms between each flicker       (default 55)
+//   minDelay      — min ms between glitch events  (default 3200)
+//   maxDelay      — max ms between glitch events  (default 7500)
+// ═══════════════════════════════════════════════════════
+// Deliberately excludes M, W (very wide in proportional fonts) and
+// bracket pairs [], {} which double the visual width of a slot.
+// This keeps the title from shifting width during a glitch frame.
+const GLITCH_CHARS = 'ABCDEFGHIJKLNOPQRSTUVXYZ0123456789!#%&<>?';
+
+function startGlitch(el, {
+  corruptCount = 2,
+  flickers     = 3,
+  flickerMs    = 55,
+  minDelay     = 3200,
+  maxDelay     = 7500,
+} = {}) {
+  // Snapshot the canonical text once — always restore to this
+  const original = el.textContent;
+
+  // Build list of glitch-eligible indices (letters + digits only)
+  const eligible = [];
+  for (let i = 0; i < original.length; i++) {
+    if (/[a-zA-Z0-9]/.test(original[i])) eligible.push(i);
+  }
+  if (!eligible.length) return;
+
+  function rndChar() {
+    return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+  }
+
+  function applyCorruption(positions) {
+    const arr = original.split('');
+    let out = '';
+    for (let i = 0; i < arr.length; i++) {
+      if (positions.includes(i)) {
+        out += `<span style="color:#ff2222">${rndChar()}</span>`;
+      } else {
+        out += arr[i];
+      }
+    }
+    el.innerHTML = out;
+  }
+
+  function runEvent() {
+    // Shuffle eligible positions and pick corruptCount of them
+    const positions = eligible
+      .slice()
+      .sort(() => Math.random() - 0.5)
+      .slice(0, corruptCount);
+
+    let tick = 0;
+    function flicker() {
+      if (tick < flickers) {
+        applyCorruption(positions);
+        tick++;
+        setTimeout(flicker, flickerMs);
+      } else {
+        el.textContent = original; // snap back to truth
+        schedule();                // queue the next event
+      }
+    }
+    flicker();
+  }
+
+  function schedule() {
+    const delay = minDelay + Math.random() * (maxDelay - minDelay);
+    setTimeout(runEvent, delay);
+  }
+
+  schedule();
+}
+
+// ═══════════════════════════════════════════════════════
+// HERO TYPEWRITER
+// Types the title character by character, then leaves
+// the block cursor blinking once the string is complete.
+// Glitch starts immediately after typing finishes.
+// ═══════════════════════════════════════════════════════
+(function typeHero() {
+  const target  = document.getElementById('hero-text');
+  const cursor  = document.getElementById('hero-cursor');
+  const FULL    = 'Phantomra.in';
+  const CHAR_MS = 145;  // ms per character
+  const START_DELAY = 420; // ms before first character
+
+  let i = 0;
+  cursor.classList.add('typing');
+
+  function typeNext() {
+    if (i <= FULL.length) {
+      target.textContent = FULL.slice(0, i);
+      i++;
+      setTimeout(typeNext, CHAR_MS);
+    } else {
+      // Typing done — blink cursor and start glitch loop
+      cursor.classList.remove('typing');
+      cursor.classList.add('done');
+      startGlitch(target, {
+        corruptCount: 2,
+        flickers:     3,
+        flickerMs:    55,
+        minDelay:     3000,
+        maxDelay:     7000,
+      });
+    }
+  }
+
+  setTimeout(typeNext, START_DELAY);
+})();
+
+// Subtitle glitch — slightly gentler: 1 char, longer pauses
+// Starts after a brief delay so it doesn't compete with the typewriter
+setTimeout(() => {
+  const subtitle = document.querySelector('.hero-subtitle');
+  if (subtitle) {
+    startGlitch(subtitle, {
+      corruptCount: 2,   // 2 chars at once — more visible at small size
+      flickers:     3,   // 3 × 75ms = ~225ms total visibility (was ~130ms)
+      flickerMs:    75,
+      minDelay:     4500,
+      maxDelay:     9500,
+    });
+  }
+}, 2200);
+</script>
+</body>
+</html>
