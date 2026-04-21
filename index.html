@@ -999,8 +999,8 @@ function updateAudioReactive() {
 // ═══════════════════════════════════════════════════════
 (function () {
   const PLAYLIST = [
-    { src: 'Music/monochromerain.mp3', label: 'MONOCHROMERAIN' },
-    { src: 'Music/chromedream.mp3',  label: 'CHROMEDREAM'  }
+    { src: 'Music/chromedream.mp3', label: 'CHROMEDREAM' },
+    { src: 'Music/monochromerain.mp3',  label: 'MONOCHROMERAIN'  }
   ];
 
   let trackIdx = 0;
@@ -1057,6 +1057,14 @@ function updateAudioReactive() {
     if (audio.paused) audio.play().catch(() => {});
     else audio.pause();
   });
+  
+  //Start audio on click
+  document.addEventListener('click', function startOnFirstClick() {
+  initAudioContext(audio);
+  if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+  audio.play().catch(() => {});
+  document.removeEventListener('click', startOnFirstClick); // fires once then removes itself
+}, { once: true });
 
   // Seek on slider drag
   seekEl.addEventListener('input', () => {
