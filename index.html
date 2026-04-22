@@ -18,6 +18,8 @@
     --grotesk: 'Space Grotesk', system-ui, sans-serif;
     --border: 1px solid rgba(255,255,255,0.8);
     --frame: 12px;
+    --dot-energy: 0;
+    --cta-energy: 0;
   }
 
   html { scroll-behavior: smooth; }
@@ -69,6 +71,179 @@
     font-size: 10px;
     opacity: 0.6;
     letter-spacing: 2px;
+  }
+
+  #chrome-top-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+  }
+
+  #tuning-toggle {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.44);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.68;
+    transition: opacity 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+
+  #tuning-toggle:hover,
+  #tuning-toggle.is-open {
+    opacity: 1;
+    border-color: var(--red);
+    box-shadow: 0 0 10px rgba(255,34,34,0.24);
+  }
+
+  #tuning-panel {
+    position: fixed;
+    top: calc(var(--frame) + 38px);
+    right: calc(var(--frame) + 16px);
+    width: min(340px, calc(100vw - 40px));
+    max-height: calc(100vh - 92px);
+    overflow: auto;
+    padding: 14px;
+    border: var(--border);
+    background: rgba(0,0,0,0.92);
+    z-index: 30;
+    font-family: var(--mono);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  #tuning-panel.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .tuning-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .tuning-title,
+  .tuning-status {
+    font-size: 10px;
+  }
+
+  .tuning-status {
+    opacity: 0.58;
+  }
+
+  #tuning-controls {
+    display: grid;
+    gap: 8px;
+  }
+
+  .tuning-row {
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.02);
+    padding: 8px 10px;
+  }
+
+  .tuning-row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .tuning-label,
+  .tuning-value {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .tuning-label {
+    text-transform: uppercase;
+    opacity: 0.82;
+  }
+
+  .tuning-value {
+    color: var(--red);
+  }
+
+  .tuning-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.22);
+    outline: none;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .tuning-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 7px;
+    height: 7px;
+    background: var(--white);
+    border-radius: 0;
+    box-shadow: 0 0 8px rgba(255,34,34,0.22);
+  }
+
+  .tuning-slider::-moz-range-thumb {
+    width: 7px;
+    height: 7px;
+    border: none;
+    background: var(--white);
+    border-radius: 0;
+    box-shadow: 0 0 8px rgba(255,34,34,0.22);
+  }
+
+  .tuning-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .tuning-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.32);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+  }
+
+  .tuning-btn:hover {
+    border-color: var(--red);
+    box-shadow: 0 0 10px rgba(255,34,34,0.18);
+  }
+
+  #tuning-export {
+    width: 100%;
+    min-height: 82px;
+    margin-top: 10px;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.72);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.6;
+    padding: 8px;
+    resize: vertical;
   }
 
   /* ── Bottom status bar ── */
@@ -203,6 +378,22 @@
     white-space: nowrap; /* prevent glitch chars from ever causing a line wrap */
   }
 
+  #hero-text {
+    display: inline-block;
+  }
+
+  .hero-title__dot {
+    display: inline-block;
+    color: var(--red);
+    transform: translateY(-0.035em) scale(calc(1 + var(--dot-energy) * 0.16));
+    /* Keep the signal bloom on the glyph itself so stronger peaks feel alive without drift. */
+    text-shadow:
+      0 0 calc(5px + var(--dot-energy) * 9px) rgba(255,34,34, calc(0.44 + var(--dot-energy) * 0.26)),
+      0 0 calc(1px + var(--dot-energy) * 2px) rgba(255,34,34, calc(0.44 + var(--dot-energy) * 0.18)),
+      0 0 1px rgba(255,255,255,0.92);
+    transition: color 0.12s ease, transform 0.12s ease, text-shadow 0.12s ease;
+  }
+
   .hero-subtitle {
     font-family: var(--mono);
     font-size: clamp(10px, 1.5vw, 14px);
@@ -213,25 +404,82 @@
   }
 
   .cta-btn {
-    display: inline-block;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--white);
     border: var(--border);
-    background: transparent;
-    padding: 14px 28px;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.02),
+      rgba(255,34,34,calc(0.03 + var(--cta-energy) * 0.08)) 52%,
+      rgba(255,255,255,0.02)
+    );
+    padding: 14px 28px 14px 42px;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.15s;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,calc(0.03 + var(--cta-energy) * 0.14));
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.15s, letter-spacing 0.15s, transform 0.15s;
   }
 
-  .cta-btn:hover {
-    background: var(--white);
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border: 1px solid rgba(255,255,255,0.72);
+    background: rgba(255,34,34,calc(0.30 + var(--cta-energy) * 0.42));
+    box-shadow: 0 0 18px rgba(255,34,34,calc(0.10 + var(--cta-energy) * 0.32));
+    transform: translateY(-50%) scale(calc(1 + var(--cta-energy) * 0.42));
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+
+  .cta-btn::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 7px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,34,34,0.85), transparent);
+    opacity: calc(0.08 + var(--cta-energy) * 0.45);
+    transform: scaleX(calc(0.38 + var(--cta-energy) * 0.58));
+    transition: opacity 0.15s, transform 0.15s;
+  }
+
+  .cta-btn__label {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-btn:hover,
+  .cta-btn:focus-visible {
+    background: rgba(255,255,255,0.94);
     color: var(--black);
     border-color: var(--red);
-    box-shadow: 0 0 12px var(--red), 0 0 2px var(--red);
+    box-shadow:
+      0 0 12px rgba(255,34,34,0.72),
+      0 0 2px var(--red),
+      inset 0 0 0 1px rgba(255,34,34,0.16);
+    letter-spacing: 3.6px;
+    transform: translateY(-1px);
+  }
+
+  .cta-btn:hover::before,
+  .cta-btn:focus-visible::before {
+    border-color: var(--red);
+    transform: translateY(-50%) scale(1.35);
+  }
+
+  .cta-btn:focus-visible {
+    outline: none;
   }
 
   /* ── Sections ── */
@@ -424,7 +672,23 @@
 <div id="chrome-top">
   <span class="chrome-icon">&#9776; &nbsp;MENU</span>
   <span class="chrome-icon">PHANTOMRA.IN</span>
-  <span class="chrome-icon">&#8212; &nbsp;[ ]</span>
+  <div id="chrome-top-controls">
+    <span class="chrome-icon">&#8212; &nbsp;[ ]</span>
+    <button id="tuning-toggle" type="button" aria-expanded="false" aria-controls="tuning-panel">TUNE</button>
+  </div>
+</div>
+
+<div id="tuning-panel" aria-hidden="true">
+  <div class="tuning-header">
+    <span class="tuning-title">Signal Tuning</span>
+    <span class="tuning-status" id="tuning-status">LOCAL</span>
+  </div>
+  <div id="tuning-controls"></div>
+  <div class="tuning-actions">
+    <button id="tuning-reset" class="tuning-btn" type="button">Reset</button>
+    <button id="tuning-copy" class="tuning-btn" type="button">Copy Values</button>
+  </div>
+  <textarea id="tuning-export" readonly spellcheck="false"></textarea>
 </div>
 
 <!-- Bottom status bar -->
@@ -450,7 +714,7 @@
   <section id="hero" style="opacity:1;transform:none;">
     <div class="hero-title"><span id="hero-text"></span><span class="cursor-blink cursor-blink--hero" id="hero-cursor"></span></div>
     <div class="hero-subtitle">// &nbsp;The drips before the dream</div>
-    <a href="#work" class="cta-btn">ENTER THE MESH</a>
+    <a href="#work" class="cta-btn"><span class="cta-btn__label">BEGIN TRANSMISSION</span></a>
   </section>
 
   <!-- Work -->
@@ -687,10 +951,11 @@ function drawTerrain(t) {
   const { verts, gridX, gridZ, halfX, halfZ } = buildTerrainVertices(t);
 
   ctx.strokeStyle = '#ffffff';
-  ctx.globalAlpha = audioMod.meshAlpha;
-  ctx.lineWidth   = 0.3;
+  ctx.lineWidth   = audioMod.meshLineWidth;
 
   for (let iz = 0; iz <= gridZ; iz++) {
+    const rowWeight = 0.84 + (1 - Math.abs((iz / gridZ) - 0.5) * 2) * 0.16;
+    ctx.globalAlpha = audioMod.meshAlpha * rowWeight;
     ctx.beginPath();
     for (let ix = 0; ix <= gridX; ix++) {
       const { sx, sy } = projectTerrain(verts[iz][ix].x3, verts[iz][ix].y3, verts[iz][ix].z3);
@@ -700,6 +965,9 @@ function drawTerrain(t) {
   }
 
   for (let ix = 0; ix <= gridX; ix++) {
+    // Keep the center mesh a touch hotter than the edges to avoid a uniform full-page flash.
+    const colWeight = 0.84 + (1 - Math.abs((ix / gridX) - 0.5) * 2) * 0.16;
+    ctx.globalAlpha = audioMod.meshAlpha * colWeight;
     ctx.beginPath();
     for (let iz = 0; iz <= gridZ; iz++) {
       const { sx, sy } = projectTerrain(verts[iz][ix].x3, verts[iz][ix].y3, verts[iz][ix].z3);
@@ -719,27 +987,145 @@ function drawTerrain(t) {
 // Centre particles appear larger (simple depth cue).
 // Some emit a short trail.
 // ═══════════════════════════════════════════════════════
-const PARTICLE_COUNT = 400;
+const TUNING_STORAGE_KEY = 'phantomrain-tuning-v1';
+const DEFAULT_TUNING = Object.freeze({
+  particleCount: 230,
+  particleYSpread: 545,
+  particleRecentering: 0.00013,
+  particleBoost: 2.81,
+  meshAlphaBase: 0.13,
+  meshPeakAlphaInfluence: 0.28,
+  meshLineWidthBase: 0.48,
+  meshLineWidthPeakInfluence: 0.39,
+  dotEnergyMultiplier: 5,
+  signalCoreRadius: 690,
+  signalCoreLocalPush: 3.61
+});
+
+const TUNING_CONTROLS = [
+  { key: 'particleCount', label: 'Particle Count', min: 40, max: 1800, step: 10 },
+  { key: 'particleYSpread', label: 'Particle Vertical Spread', min: 80, max: 1000, step: 5 },
+  { key: 'particleRecentering', label: 'Particle Vertical Recenter', min: 0, max: 0.0025, step: 0.00001 },
+  { key: 'particleBoost', label: 'Particle Boost', min: 0, max: 6.0, step: 0.01 },
+  { key: 'meshAlphaBase', label: 'Mesh Alpha Base', min: 0, max: 0.5, step: 0.005 },
+  { key: 'meshPeakAlphaInfluence', label: 'Mesh Peak Alpha', min: 0, max: 1.5, step: 0.01 },
+  { key: 'meshLineWidthBase', label: 'Mesh Line Base', min: 0.01, max: 1.2, step: 0.01 },
+  { key: 'meshLineWidthPeakInfluence', label: 'Mesh Line Peak', min: 0, max: 1.2, step: 0.01 },
+  { key: 'dotEnergyMultiplier', label: 'Dot Energy', min: 0, max: 8.0, step: 0.01 },
+  { key: 'signalCoreRadius', label: 'Signal Core Radius', min: 0, max: 800, step: 1 },
+  { key: 'signalCoreLocalPush', label: 'Signal Core Push', min: 0, max: 4.0, step: 0.01 },
+];
+
+function loadStoredTuning() {
+  try {
+    const raw = localStorage.getItem(TUNING_STORAGE_KEY);
+    if (!raw) return { ...DEFAULT_TUNING };
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_TUNING, ...parsed };
+  } catch {
+    return { ...DEFAULT_TUNING };
+  }
+}
+
+const tuning = loadStoredTuning();
+const PARTICLE_Y_CENTER = TERRAIN_Y_BASE - 200;
 const particles = [];
 
 function makeParticle() {
+  const baseVx = (Math.random() - 0.5) * 0.4;
+  const baseVy = (Math.random() - 0.5) * 0.15;
+  const baseVz = (Math.random() - 0.5) * 0.3;
   return {
     x3: (Math.random() - 0.5) * SPREAD_X * 2,
-    y3: (Math.random() - 0.5) * 300 + TERRAIN_Y_BASE - 200,
+    y3: (Math.random() - 0.5) * tuning.particleYSpread + PARTICLE_Y_CENTER,
     z3: Math.random() * SPREAD_Z * 0.9 + Z_NEAR,
-    vx: (Math.random() - 0.5) * 0.4,
-    vy: (Math.random() - 0.5) * 0.15,
-    vz: (Math.random() - 0.5) * 0.3,
+    baseVx,
+    baseVy,
+    baseVz,
+    vx: baseVx,
+    vy: baseVy,
+    vz: baseVz,
     trail:    Math.random() < 0.12,  // ~12% have trails
     reactive: Math.random() < 0.35,  // ~35% pulse with music
-    pulse:    0                       // current pulse value, lerped each frame
+    pulse:    0,                      // current pulse value, lerped each frame
+    burst:    0,
+    flash:    0,
+    signalBias: 0.85 + Math.random() * 0.3
   };
 }
 
-for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(makeParticle());
+function syncParticlePopulation() {
+  const targetCount = Math.max(0, Math.round(tuning.particleCount));
+  while (particles.length < targetCount) particles.push(makeParticle());
+  if (particles.length > targetCount) particles.length = targetCount;
+}
+
+function remapParticleVerticalSpread(previousSpread, nextSpread) {
+  if (!previousSpread || previousSpread === nextSpread) return;
+  const scale = nextSpread / previousSpread;
+  for (const p of particles) {
+    p.y3 = PARTICLE_Y_CENTER + (p.y3 - PARTICLE_Y_CENTER) * scale;
+  }
+}
+
+syncParticlePopulation();
 
 function drawParticles() {
   for (const p of particles) {
+    let targetVx = p.baseVx;
+    let targetVy = p.baseVy + (TERRAIN_Y_BASE - 60 - p.y3) * tuning.particleRecentering;
+    let targetVz = p.baseVz;
+    const currentProj = project(p.x3, p.y3, p.z3);
+
+    if (p.reactive) {
+      // Short-lived beat pulses add motion on top of the ambient drift so
+      // particles respond to fresh transients instead of constant loudness.
+      const bassBeat = audioReactive.bassPeak;
+      const midBeat  = audioReactive.midPeak;
+      const energy   = (bassBeat * 0.92 + midBeat * 0.34) * p.signalBias;
+
+      p.burst = Math.max(p.burst * 0.82, energy);
+      p.flash = Math.max(p.flash * 0.78, energy * 1.1);
+      p.pulse = p.pulse + (p.flash - p.pulse) * (p.flash > p.pulse ? 0.42 : 0.15);
+
+      const centeredX = p.x3 / SPREAD_X;
+      const centeredY = (p.y3 - (TERRAIN_Y_BASE - 60)) / 280;
+      const centeredZ = (p.z3 - (Z_NEAR + SPREAD_Z * 0.52)) / SPREAD_Z;
+      const expansion = bassBeat * 0.54 + midBeat * 0.18;
+
+      targetVx += centeredX * expansion * 1.55;
+      targetVy += -centeredY * energy * 0.42;
+      targetVz += centeredZ * expansion * 1.1;
+
+      if (signalCore.active) {
+        const signalDx = currentProj.sx - signalCore.x;
+        const signalDy = currentProj.sy - signalCore.y;
+        const signalDist = Math.hypot(signalDx, signalDy);
+        const signalZone = Math.max(0, 1 - signalDist / signalCore.radius);
+
+        if (signalZone > 0) {
+          // Keep the field broad first; particles near the core only get a
+          // small extra outward nudge from the signal origin.
+          const invSignalDist = 1 / (signalDist + 1);
+          const dirX = signalDx * invSignalDist;
+          const dirY = signalDy * invSignalDist;
+          const localPush = signalZone * audioReactive.impact * tuning.signalCoreLocalPush;
+
+          targetVx += dirX * localPush * 0.65;
+          targetVy += dirY * localPush * 0.28;
+          p.flash = Math.max(p.flash, localPush * 0.7);
+        }
+      }
+    } else {
+      p.burst *= 0.9;
+      p.flash *= 0.84;
+      p.pulse += (0 - p.pulse) * 0.08;
+    }
+
+    p.vx += (targetVx - p.vx) * 0.18;
+    p.vy += (targetVy - p.vy) * 0.18;
+    p.vz += (targetVz - p.vz) * 0.18;
+
     // Advance position
     p.x3 += p.vx;
     p.y3 += p.vy;
@@ -772,21 +1158,15 @@ function drawParticles() {
       ctx.beginPath();
       ctx.moveTo(tx, ty);
       ctx.lineTo(proj.sx, proj.sy);
-      ctx.strokeStyle = `rgba(255,255,255,${finalAlpha * 0.35})`;
+      ctx.strokeStyle = `rgba(255,34,34,${Math.min(1, finalAlpha * (0.16 + p.pulse * 0.28))})`;
       ctx.lineWidth = 0.8;
       ctx.stroke();
     }
 
     // Pulse reactive particles — threshold floors the signal so particles
     // fully decay back to rest between beats rather than hovering up
-    if (p.reactive) {
-      const raw = audioReactive.bass * 5.0 + audioReactive.mid * 2.0;
-      const target = raw > 0.15 ? Math.min(1, raw) : 0;
-      p.pulse = p.pulse + (target - p.pulse) * (target > p.pulse ? 0.4 : 0.07);
-    }
-    // Reactive particles brighten on beats, size stays fixed at new baseline
-    const pulseRadius = radius;
-    const pulseAlpha  = p.reactive ? Math.min(1, finalAlpha + p.pulse * 0.55) : finalAlpha;
+    const pulseRadius = p.reactive ? radius * (1 + p.pulse * 0.38 + p.burst * 0.16) : radius;
+    const pulseAlpha  = p.reactive ? Math.min(1, finalAlpha + p.flash * 0.48) : finalAlpha;
 
     // Dot
     ctx.beginPath();
@@ -867,10 +1247,182 @@ const audioMod = {
   noiseAmp:      T_NOISE_AMP, // lerps toward T_NOISE_AMP * bassScale
   timeScale:     1.0,         // multiplier on dt → terrain animation speed
   rainBoost:     1.0,         // multiplier on rain opacity
-  particleBoost: 1.0,         // multiplier on particle alpha
+  particleBoost: tuning.particleBoost,         // multiplier on particle alpha
+  meshLineWidth: tuning.meshLineWidthBase,
+  uiSignal:      0,
   meshAlpha:     0.17,        // terrain grid globalAlpha — flashes on highs
   waveComplexity: 1.0,        // scales higher-freq wave layers on mids
 };
+audioMod.meshAlpha = tuning.meshAlphaBase;
+
+const heroTitleEl = document.querySelector('.hero-title');
+const ctaEl = document.querySelector('.cta-btn');
+const signalCore = { x: cx, y: cy, radius: 170, active: false };
+const tuningToggle = document.getElementById('tuning-toggle');
+const tuningPanel = document.getElementById('tuning-panel');
+const tuningControlsEl = document.getElementById('tuning-controls');
+const tuningResetBtn = document.getElementById('tuning-reset');
+const tuningCopyBtn = document.getElementById('tuning-copy');
+const tuningExportEl = document.getElementById('tuning-export');
+const tuningStatusEl = document.getElementById('tuning-status');
+const tuningInputMap = new Map();
+let tuningStatusTimer = null;
+
+function easeSignal(current, target, rise, fall) {
+  return current + (target - current) * (target > current ? rise : fall);
+}
+
+function syncSignalUI() {
+  if (heroTitleEl) heroTitleEl.style.setProperty('--dot-energy', (audioMod.uiSignal * tuning.dotEnergyMultiplier).toFixed(3));
+  if (ctaEl) {
+    const ctaSignal = Math.min(1, audioMod.uiSignal * 0.68 + audioReactive.highPeak * 0.22);
+    ctaEl.style.setProperty('--cta-energy', ctaSignal.toFixed(3));
+  }
+
+  if (!heroTitleEl) return;
+
+  const dotEl = heroTitleEl.querySelector('.hero-title__dot');
+  const coreRect = dotEl ? dotEl.getBoundingClientRect() : heroTitleEl.getBoundingClientRect();
+
+  signalCore.x = coreRect.left + coreRect.width * 0.5;
+  signalCore.y = coreRect.top + coreRect.height * 0.56;
+  signalCore.radius = tuning.signalCoreRadius + audioMod.uiSignal * 70;
+  signalCore.active =
+    coreRect.bottom > 0 &&
+    coreRect.top < H &&
+    coreRect.right > 0 &&
+    coreRect.left < W;
+}
+
+function formatTuningValue(def, value) {
+  if (def.step >= 1) return String(Math.round(value));
+  if (def.step >= 0.01) return Number(value).toFixed(2);
+  if (def.step >= 0.001) return Number(value).toFixed(3);
+  return Number(value).toFixed(5);
+}
+
+function buildTuningExport() {
+  const out = {};
+  for (const { key } of TUNING_CONTROLS) out[key] = tuning[key];
+  return JSON.stringify(out, null, 2);
+}
+
+function updateTuningExport() {
+  if (tuningExportEl) tuningExportEl.value = buildTuningExport();
+}
+
+function flashTuningStatus(text) {
+  if (!tuningStatusEl) return;
+  tuningStatusEl.textContent = text;
+  clearTimeout(tuningStatusTimer);
+  tuningStatusTimer = setTimeout(() => {
+    tuningStatusEl.textContent = 'LOCAL';
+  }, 1200);
+}
+
+function persistTuning() {
+  try {
+    localStorage.setItem(TUNING_STORAGE_KEY, JSON.stringify(tuning));
+  } catch {}
+  updateTuningExport();
+}
+
+function updateAllTuningControls() {
+  for (const def of TUNING_CONTROLS) {
+    const refs = tuningInputMap.get(def.key);
+    if (!refs) continue;
+    refs.input.value = tuning[def.key];
+    refs.value.textContent = formatTuningValue(def, tuning[def.key]);
+  }
+  updateTuningExport();
+}
+
+function applyTuningValue(key, rawValue) {
+  const previous = tuning[key];
+  const nextValue = key === 'particleCount' ? Math.round(rawValue) : rawValue;
+  if (previous === nextValue) return;
+  tuning[key] = nextValue;
+
+  if (key === 'particleCount') {
+    syncParticlePopulation();
+  } else if (key === 'particleYSpread') {
+    remapParticleVerticalSpread(previous, nextValue);
+  }
+
+  persistTuning();
+  updateAllTuningControls();
+}
+
+function setTuningPanelOpen(isOpen) {
+  if (!tuningPanel || !tuningToggle) return;
+  tuningPanel.classList.toggle('is-open', isOpen);
+  tuningPanel.setAttribute('aria-hidden', String(!isOpen));
+  tuningToggle.classList.toggle('is-open', isOpen);
+  tuningToggle.setAttribute('aria-expanded', String(isOpen));
+}
+
+function setupTuningController() {
+  if (!tuningControlsEl) return;
+
+  for (const def of TUNING_CONTROLS) {
+    const row = document.createElement('label');
+    row.className = 'tuning-row';
+    row.innerHTML = `
+      <div class="tuning-row-head">
+        <span class="tuning-label">${def.label}</span>
+        <span class="tuning-value"></span>
+      </div>
+      <input class="tuning-slider" type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${tuning[def.key]}">
+    `;
+
+    const input = row.querySelector('input');
+    const value = row.querySelector('.tuning-value');
+    input.addEventListener('input', () => applyTuningValue(def.key, Number(input.value)));
+
+    tuningInputMap.set(def.key, { input, value, def });
+    tuningControlsEl.appendChild(row);
+  }
+
+  tuningToggle?.addEventListener('click', () => {
+    setTuningPanelOpen(!tuningPanel.classList.contains('is-open'));
+  });
+
+  tuningResetBtn?.addEventListener('click', () => {
+    const previousSpread = tuning.particleYSpread;
+    Object.assign(tuning, DEFAULT_TUNING);
+    remapParticleVerticalSpread(previousSpread, tuning.particleYSpread);
+    syncParticlePopulation();
+    persistTuning();
+    updateAllTuningControls();
+    flashTuningStatus('RESET');
+  });
+
+  tuningCopyBtn?.addEventListener('click', async () => {
+    const payload = buildTuningExport();
+    updateTuningExport();
+    try {
+      await navigator.clipboard.writeText(payload);
+    } catch {
+      tuningExportEl?.focus();
+      tuningExportEl?.select();
+      document.execCommand('copy');
+    }
+    flashTuningStatus('COPIED');
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setTuningPanelOpen(false);
+  });
+
+  document.addEventListener('mousedown', (event) => {
+    if (!tuningPanel?.classList.contains('is-open')) return;
+    const target = event.target;
+    if (tuningPanel.contains(target) || tuningToggle?.contains(target)) return;
+    setTuningPanelOpen(false);
+  });
+
+  updateAllTuningControls();
+}
 
 function animate(now) {
   const dt = (now - lastTime) / 1000;
@@ -880,21 +1432,29 @@ function animate(now) {
   updateAudioReactive();
   const { bass, mid, high } = audioReactive;
 
-  // Bass: 30% dialled back from aggressive version
-  const targetAmp = T_NOISE_AMP * (1.0 + bass * 1.54);
-  audioMod.noiseAmp = audioMod.noiseAmp + (targetAmp - audioMod.noiseAmp) * 0.126;
+  // Lower rest state, then let short peaks hit harder and recover faster.
+  const targetAmp = T_NOISE_AMP * (0.84 + bass * 1.18 + audioReactive.bassPeak * 1.04);
+  audioMod.noiseAmp = easeSignal(audioMod.noiseAmp, targetAmp, 0.12, 0.19);
 
-  // Mid: 30% dialled back
-  const targetSpeed = 1.0 + mid * 1.26;
-  audioMod.timeScale = audioMod.timeScale + (targetSpeed - audioMod.timeScale) * 0.098;
-  const targetComplexity = 1.0 + mid * 1.75;
-  audioMod.waveComplexity = audioMod.waveComplexity + (targetComplexity - audioMod.waveComplexity) * 0.098;
+  const targetSpeed = 0.94 + mid * 0.82 + audioReactive.midPeak * 0.5;
+  audioMod.timeScale = easeSignal(audioMod.timeScale, targetSpeed, 0.11, 0.16);
+  const targetComplexity = 0.96 + mid * 1.25 + audioReactive.midPeak * 0.9;
+  audioMod.waveComplexity = easeSignal(audioMod.waveComplexity, targetComplexity, 0.11, 0.17);
 
-  // High: flash terrain mesh brightness (rain stays untouched)
-  const targetAlpha = 0.17 + high * 0.52;
-  audioMod.meshAlpha = audioMod.meshAlpha + (targetAlpha - audioMod.meshAlpha) * 0.22;
-  audioMod.particleBoost = 1.0 + high * 1.5;
+  // Pull the mesh flash back a notch so peaks read clearly without washing the page.
+  const targetAlpha = tuning.meshAlphaBase + high * 0.06 + audioReactive.impact * tuning.meshPeakAlphaInfluence;
+  audioMod.meshAlpha = easeSignal(audioMod.meshAlpha, targetAlpha, 0.32, 0.28);
+  const targetLineWidth = tuning.meshLineWidthBase + audioReactive.impact * tuning.meshLineWidthPeakInfluence;
+  audioMod.meshLineWidth = easeSignal(audioMod.meshLineWidth, targetLineWidth, 0.28, 0.24);
+  audioMod.particleBoost = (1.0 + high * 0.55 + audioReactive.impact * 0.9) * tuning.particleBoost;
   audioMod.rainBoost = 1.0;
+  audioMod.uiSignal = easeSignal(
+    audioMod.uiSignal,
+    Math.min(1, audioReactive.impact * 0.88 + high * 0.18 + mid * 0.08),
+    0.24,
+    0.14
+  );
+  syncSignalUI();
 
   // ── Advance time ───────────────────────────────────────
   terrainTime += dt * audioMod.timeScale;
@@ -908,6 +1468,7 @@ function animate(now) {
   requestAnimationFrame(animate);
 }
 
+setupTuningController();
 requestAnimationFrame(animate);
 
 // ═══════════════════════════════════════════════════════
@@ -938,7 +1499,18 @@ setInterval(updateClock, 1000);
 // AudioContext is created lazily on first play to satisfy
 // browser autoplay policy. Until then all values are 0.
 // ═══════════════════════════════════════════════════════
-const audioReactive = { bass: 0, mid: 0, high: 0 };
+const audioReactive = {
+  bass: 0,
+  mid: 0,
+  high: 0,
+  bassFloor: 0,
+  midFloor: 0,
+  highFloor: 0,
+  bassPeak: 0,
+  midPeak: 0,
+  highPeak: 0,
+  impact: 0,
+};
 
 let _audioCtx = null, _analyser = null, _freqData = null;
 
@@ -961,7 +1533,6 @@ function updateAudioReactive() {
   if (!_analyser) { return; }
 
   _analyser.getByteFrequencyData(_freqData);   // fills 0-255 per bin
-  const bins = _freqData.length;               // 128 bins
 
   // Map frequency bins to musical bands
   // Bass:  bins 0–5   (~0–500 Hz)
@@ -989,6 +1560,24 @@ function updateAudioReactive() {
   audioReactive.bass = lerp(audioReactive.bass, targetBass);
   audioReactive.mid  = lerp(audioReactive.mid,  targetMid);
   audioReactive.high = lerp(audioReactive.high, targetHigh);
+
+  // A slower floor per band turns fresh transients into brief beat pulses.
+  // That keeps the scene event-driven instead of permanently inflated.
+  audioReactive.bassFloor = audioReactive.bassFloor + (targetBass - audioReactive.bassFloor) * 0.045;
+  audioReactive.midFloor  = audioReactive.midFloor  + (targetMid  - audioReactive.midFloor)  * 0.04;
+  audioReactive.highFloor = audioReactive.highFloor + (targetHigh - audioReactive.highFloor) * 0.04;
+
+  const bassPeak = Math.max(0, targetBass - audioReactive.bassFloor - 0.018);
+  const midPeak  = Math.max(0, targetMid  - audioReactive.midFloor  - 0.02);
+  const highPeak = Math.max(0, targetHigh - audioReactive.highFloor - 0.018);
+
+  audioReactive.bassPeak = Math.max(audioReactive.bassPeak * 0.72, Math.min(1, bassPeak * 5.2));
+  audioReactive.midPeak  = Math.max(audioReactive.midPeak  * 0.78, Math.min(1, midPeak  * 4.8));
+  audioReactive.highPeak = Math.max(audioReactive.highPeak * 0.8,  Math.min(1, highPeak * 4.2));
+  audioReactive.impact   = Math.max(
+    audioReactive.impact * 0.84,
+    Math.min(1, audioReactive.bassPeak * 0.95 + audioReactive.midPeak * 0.68 + audioReactive.highPeak * 0.34)
+  );
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1114,12 +1703,44 @@ document.querySelectorAll('section:not(#hero)').forEach(s => observer.observe(s)
 // This keeps the title from shifting width during a glitch frame.
 const GLITCH_CHARS = 'ABCDEFGHIJKLNOPQRSTUVXYZ0123456789!#%&<>?';
 
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[char]);
+}
+
+function renderGlitchText(chars, corrupted, decorate) {
+  let out = '';
+  for (let i = 0; i < chars.length; i++) {
+    const char = escapeHtml(chars[i]);
+    const html = corrupted.has(i)
+      ? `<span style="color:#ff2222">${char}</span>`
+      : char;
+    out += decorate ? decorate(chars[i], html, i) : html;
+  }
+  return out;
+}
+
+function renderHeroTitle(chars, corrupted = new Set()) {
+  // The title stays canonical as plain text for typing/glitch logic; only the
+  // rendered frame gets a dedicated dot span so the signal anchor survives.
+  return renderGlitchText(chars, corrupted, (char, html) => {
+    if (char === '.') return `<span class="hero-title__dot">${html}</span>`;
+    return html;
+  });
+}
+
 function startGlitch(el, {
   corruptCount = 2,
   flickers     = 3,
   flickerMs    = 55,
   minDelay     = 3200,
   maxDelay     = 7500,
+  renderFrame  = null,
 } = {}) {
   // Snapshot the canonical text once — always restore to this
   const original = el.textContent;
@@ -1135,17 +1756,19 @@ function startGlitch(el, {
     return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
   }
 
+  function paint(chars, corrupted = new Set()) {
+    if (renderFrame) {
+      el.innerHTML = renderFrame(chars, corrupted);
+    } else {
+      el.innerHTML = renderGlitchText(chars, corrupted);
+    }
+  }
+
   function applyCorruption(positions) {
     const arr = original.split('');
-    let out = '';
-    for (let i = 0; i < arr.length; i++) {
-      if (positions.includes(i)) {
-        out += `<span style="color:#ff2222">${rndChar()}</span>`;
-      } else {
-        out += arr[i];
-      }
-    }
-    el.innerHTML = out;
+    const corrupted = new Set(positions);
+    for (const index of corrupted) arr[index] = rndChar();
+    paint(arr, corrupted);
   }
 
   function runEvent() {
@@ -1162,7 +1785,7 @@ function startGlitch(el, {
         tick++;
         setTimeout(flicker, flickerMs);
       } else {
-        el.textContent = original; // snap back to truth
+        paint(original.split('')); // snap back to truth
         schedule();                // queue the next event
       }
     }
@@ -1200,6 +1823,7 @@ function startGlitch(el, {
       setTimeout(typeNext, CHAR_MS);
     } else {
       // Typing done — blink cursor and start glitch loop
+      target.innerHTML = renderHeroTitle(FULL.split(''));
       cursor.classList.remove('typing');
       cursor.classList.add('done');
       startGlitch(target, {
@@ -1208,6 +1832,7 @@ function startGlitch(el, {
         flickerMs:    55,
         minDelay:     3000,
         maxDelay:     7000,
+        renderFrame:  renderHeroTitle,
       });
     }
   }
