@@ -73,6 +73,179 @@
     letter-spacing: 2px;
   }
 
+  #chrome-top-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+  }
+
+  #tuning-toggle {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.44);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.68;
+    transition: opacity 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+
+  #tuning-toggle:hover,
+  #tuning-toggle.is-open {
+    opacity: 1;
+    border-color: var(--red);
+    box-shadow: 0 0 10px rgba(255,34,34,0.24);
+  }
+
+  #tuning-panel {
+    position: fixed;
+    top: calc(var(--frame) + 38px);
+    right: calc(var(--frame) + 16px);
+    width: min(340px, calc(100vw - 40px));
+    max-height: calc(100vh - 92px);
+    overflow: auto;
+    padding: 14px;
+    border: var(--border);
+    background: rgba(0,0,0,0.92);
+    z-index: 30;
+    font-family: var(--mono);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  #tuning-panel.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .tuning-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .tuning-title,
+  .tuning-status {
+    font-size: 10px;
+  }
+
+  .tuning-status {
+    opacity: 0.58;
+  }
+
+  #tuning-controls {
+    display: grid;
+    gap: 8px;
+  }
+
+  .tuning-row {
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.02);
+    padding: 8px 10px;
+  }
+
+  .tuning-row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .tuning-label,
+  .tuning-value {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .tuning-label {
+    text-transform: uppercase;
+    opacity: 0.82;
+  }
+
+  .tuning-value {
+    color: var(--red);
+  }
+
+  .tuning-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.22);
+    outline: none;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .tuning-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 7px;
+    height: 7px;
+    background: var(--white);
+    border-radius: 0;
+    box-shadow: 0 0 8px rgba(255,34,34,0.22);
+  }
+
+  .tuning-slider::-moz-range-thumb {
+    width: 7px;
+    height: 7px;
+    border: none;
+    background: var(--white);
+    border-radius: 0;
+    box-shadow: 0 0 8px rgba(255,34,34,0.22);
+  }
+
+  .tuning-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .tuning-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.32);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+  }
+
+  .tuning-btn:hover {
+    border-color: var(--red);
+    box-shadow: 0 0 10px rgba(255,34,34,0.18);
+  }
+
+  #tuning-export {
+    width: 100%;
+    min-height: 82px;
+    margin-top: 10px;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.72);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.6;
+    padding: 8px;
+    resize: vertical;
+  }
+
   /* ── Bottom status bar ── */
   #chrome-bottom {
     position: fixed;
@@ -499,7 +672,23 @@
 <div id="chrome-top">
   <span class="chrome-icon">&#9776; &nbsp;MENU</span>
   <span class="chrome-icon">PHANTOMRA.IN</span>
-  <span class="chrome-icon">&#8212; &nbsp;[ ]</span>
+  <div id="chrome-top-controls">
+    <span class="chrome-icon">&#8212; &nbsp;[ ]</span>
+    <button id="tuning-toggle" type="button" aria-expanded="false" aria-controls="tuning-panel">TUNE</button>
+  </div>
+</div>
+
+<div id="tuning-panel" aria-hidden="true">
+  <div class="tuning-header">
+    <span class="tuning-title">Signal Tuning</span>
+    <span class="tuning-status" id="tuning-status">LOCAL</span>
+  </div>
+  <div id="tuning-controls"></div>
+  <div class="tuning-actions">
+    <button id="tuning-reset" class="tuning-btn" type="button">Reset</button>
+    <button id="tuning-copy" class="tuning-btn" type="button">Copy Values</button>
+  </div>
+  <textarea id="tuning-export" readonly spellcheck="false"></textarea>
 </div>
 
 <!-- Bottom status bar -->
@@ -762,10 +951,11 @@ function drawTerrain(t) {
   const { verts, gridX, gridZ, halfX, halfZ } = buildTerrainVertices(t);
 
   ctx.strokeStyle = '#ffffff';
-  ctx.globalAlpha = audioMod.meshAlpha;
   ctx.lineWidth   = audioMod.meshLineWidth;
 
   for (let iz = 0; iz <= gridZ; iz++) {
+    const rowWeight = 0.84 + (1 - Math.abs((iz / gridZ) - 0.5) * 2) * 0.16;
+    ctx.globalAlpha = audioMod.meshAlpha * rowWeight;
     ctx.beginPath();
     for (let ix = 0; ix <= gridX; ix++) {
       const { sx, sy } = projectTerrain(verts[iz][ix].x3, verts[iz][ix].y3, verts[iz][ix].z3);
@@ -775,6 +965,9 @@ function drawTerrain(t) {
   }
 
   for (let ix = 0; ix <= gridX; ix++) {
+    // Keep the center mesh a touch hotter than the edges to avoid a uniform full-page flash.
+    const colWeight = 0.84 + (1 - Math.abs((ix / gridX) - 0.5) * 2) * 0.16;
+    ctx.globalAlpha = audioMod.meshAlpha * colWeight;
     ctx.beginPath();
     for (let iz = 0; iz <= gridZ; iz++) {
       const { sx, sy } = projectTerrain(verts[iz][ix].x3, verts[iz][ix].y3, verts[iz][ix].z3);
@@ -794,8 +987,48 @@ function drawTerrain(t) {
 // Centre particles appear larger (simple depth cue).
 // Some emit a short trail.
 // ═══════════════════════════════════════════════════════
-const PARTICLE_COUNT = 400;
-const PARTICLE_Y_SPREAD = 360;
+const TUNING_STORAGE_KEY = 'phantomrain-tuning-v1';
+const DEFAULT_TUNING = Object.freeze({
+  particleCount: 230,
+  particleYSpread: 545,
+  particleRecentering: 0.00013,
+  particleBoost: 2.81,
+  meshAlphaBase: 0.13,
+  meshPeakAlphaInfluence: 0.28,
+  meshLineWidthBase: 0.48,
+  meshLineWidthPeakInfluence: 0.39,
+  dotEnergyMultiplier: 5,
+  signalCoreRadius: 690,
+  signalCoreLocalPush: 3.61
+});
+
+const TUNING_CONTROLS = [
+  { key: 'particleCount', label: 'Particle Count', min: 40, max: 1800, step: 10 },
+  { key: 'particleYSpread', label: 'Particle Vertical Spread', min: 80, max: 1000, step: 5 },
+  { key: 'particleRecentering', label: 'Particle Vertical Recenter', min: 0, max: 0.0025, step: 0.00001 },
+  { key: 'particleBoost', label: 'Particle Boost', min: 0, max: 6.0, step: 0.01 },
+  { key: 'meshAlphaBase', label: 'Mesh Alpha Base', min: 0, max: 0.5, step: 0.005 },
+  { key: 'meshPeakAlphaInfluence', label: 'Mesh Peak Alpha', min: 0, max: 1.5, step: 0.01 },
+  { key: 'meshLineWidthBase', label: 'Mesh Line Base', min: 0.01, max: 1.2, step: 0.01 },
+  { key: 'meshLineWidthPeakInfluence', label: 'Mesh Line Peak', min: 0, max: 1.2, step: 0.01 },
+  { key: 'dotEnergyMultiplier', label: 'Dot Energy', min: 0, max: 8.0, step: 0.01 },
+  { key: 'signalCoreRadius', label: 'Signal Core Radius', min: 0, max: 800, step: 1 },
+  { key: 'signalCoreLocalPush', label: 'Signal Core Push', min: 0, max: 4.0, step: 0.01 },
+];
+
+function loadStoredTuning() {
+  try {
+    const raw = localStorage.getItem(TUNING_STORAGE_KEY);
+    if (!raw) return { ...DEFAULT_TUNING };
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_TUNING, ...parsed };
+  } catch {
+    return { ...DEFAULT_TUNING };
+  }
+}
+
+const tuning = loadStoredTuning();
+const PARTICLE_Y_CENTER = TERRAIN_Y_BASE - 200;
 const particles = [];
 
 function makeParticle() {
@@ -804,7 +1037,7 @@ function makeParticle() {
   const baseVz = (Math.random() - 0.5) * 0.3;
   return {
     x3: (Math.random() - 0.5) * SPREAD_X * 2,
-    y3: (Math.random() - 0.5) * PARTICLE_Y_SPREAD + TERRAIN_Y_BASE - 200,
+    y3: (Math.random() - 0.5) * tuning.particleYSpread + PARTICLE_Y_CENTER,
     z3: Math.random() * SPREAD_Z * 0.9 + Z_NEAR,
     baseVx,
     baseVy,
@@ -821,12 +1054,26 @@ function makeParticle() {
   };
 }
 
-for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(makeParticle());
+function syncParticlePopulation() {
+  const targetCount = Math.max(0, Math.round(tuning.particleCount));
+  while (particles.length < targetCount) particles.push(makeParticle());
+  if (particles.length > targetCount) particles.length = targetCount;
+}
+
+function remapParticleVerticalSpread(previousSpread, nextSpread) {
+  if (!previousSpread || previousSpread === nextSpread) return;
+  const scale = nextSpread / previousSpread;
+  for (const p of particles) {
+    p.y3 = PARTICLE_Y_CENTER + (p.y3 - PARTICLE_Y_CENTER) * scale;
+  }
+}
+
+syncParticlePopulation();
 
 function drawParticles() {
   for (const p of particles) {
     let targetVx = p.baseVx;
-    let targetVy = p.baseVy + (TERRAIN_Y_BASE - 60 - p.y3) * 0.00025;
+    let targetVy = p.baseVy + (TERRAIN_Y_BASE - 60 - p.y3) * tuning.particleRecentering;
     let targetVz = p.baseVz;
     const currentProj = project(p.x3, p.y3, p.z3);
 
@@ -862,7 +1109,7 @@ function drawParticles() {
           const invSignalDist = 1 / (signalDist + 1);
           const dirX = signalDx * invSignalDist;
           const dirY = signalDy * invSignalDist;
-          const localPush = signalZone * audioReactive.impact * 0.42;
+          const localPush = signalZone * audioReactive.impact * tuning.signalCoreLocalPush;
 
           targetVx += dirX * localPush * 0.65;
           targetVy += dirY * localPush * 0.28;
@@ -1000,23 +1247,33 @@ const audioMod = {
   noiseAmp:      T_NOISE_AMP, // lerps toward T_NOISE_AMP * bassScale
   timeScale:     1.0,         // multiplier on dt → terrain animation speed
   rainBoost:     1.0,         // multiplier on rain opacity
-  particleBoost: 1.0,         // multiplier on particle alpha
-  meshLineWidth: 0.3,
+  particleBoost: tuning.particleBoost,         // multiplier on particle alpha
+  meshLineWidth: tuning.meshLineWidthBase,
   uiSignal:      0,
   meshAlpha:     0.17,        // terrain grid globalAlpha — flashes on highs
   waveComplexity: 1.0,        // scales higher-freq wave layers on mids
 };
+audioMod.meshAlpha = tuning.meshAlphaBase;
 
 const heroTitleEl = document.querySelector('.hero-title');
 const ctaEl = document.querySelector('.cta-btn');
 const signalCore = { x: cx, y: cy, radius: 170, active: false };
+const tuningToggle = document.getElementById('tuning-toggle');
+const tuningPanel = document.getElementById('tuning-panel');
+const tuningControlsEl = document.getElementById('tuning-controls');
+const tuningResetBtn = document.getElementById('tuning-reset');
+const tuningCopyBtn = document.getElementById('tuning-copy');
+const tuningExportEl = document.getElementById('tuning-export');
+const tuningStatusEl = document.getElementById('tuning-status');
+const tuningInputMap = new Map();
+let tuningStatusTimer = null;
 
 function easeSignal(current, target, rise, fall) {
   return current + (target - current) * (target > current ? rise : fall);
 }
 
 function syncSignalUI() {
-  if (heroTitleEl) heroTitleEl.style.setProperty('--dot-energy', audioMod.uiSignal.toFixed(3));
+  if (heroTitleEl) heroTitleEl.style.setProperty('--dot-energy', (audioMod.uiSignal * tuning.dotEnergyMultiplier).toFixed(3));
   if (ctaEl) {
     const ctaSignal = Math.min(1, audioMod.uiSignal * 0.68 + audioReactive.highPeak * 0.22);
     ctaEl.style.setProperty('--cta-energy', ctaSignal.toFixed(3));
@@ -1029,12 +1286,142 @@ function syncSignalUI() {
 
   signalCore.x = coreRect.left + coreRect.width * 0.5;
   signalCore.y = coreRect.top + coreRect.height * 0.56;
-  signalCore.radius = 135 + audioMod.uiSignal * 70;
+  signalCore.radius = tuning.signalCoreRadius + audioMod.uiSignal * 70;
   signalCore.active =
     coreRect.bottom > 0 &&
     coreRect.top < H &&
     coreRect.right > 0 &&
     coreRect.left < W;
+}
+
+function formatTuningValue(def, value) {
+  if (def.step >= 1) return String(Math.round(value));
+  if (def.step >= 0.01) return Number(value).toFixed(2);
+  if (def.step >= 0.001) return Number(value).toFixed(3);
+  return Number(value).toFixed(5);
+}
+
+function buildTuningExport() {
+  const out = {};
+  for (const { key } of TUNING_CONTROLS) out[key] = tuning[key];
+  return JSON.stringify(out, null, 2);
+}
+
+function updateTuningExport() {
+  if (tuningExportEl) tuningExportEl.value = buildTuningExport();
+}
+
+function flashTuningStatus(text) {
+  if (!tuningStatusEl) return;
+  tuningStatusEl.textContent = text;
+  clearTimeout(tuningStatusTimer);
+  tuningStatusTimer = setTimeout(() => {
+    tuningStatusEl.textContent = 'LOCAL';
+  }, 1200);
+}
+
+function persistTuning() {
+  try {
+    localStorage.setItem(TUNING_STORAGE_KEY, JSON.stringify(tuning));
+  } catch {}
+  updateTuningExport();
+}
+
+function updateAllTuningControls() {
+  for (const def of TUNING_CONTROLS) {
+    const refs = tuningInputMap.get(def.key);
+    if (!refs) continue;
+    refs.input.value = tuning[def.key];
+    refs.value.textContent = formatTuningValue(def, tuning[def.key]);
+  }
+  updateTuningExport();
+}
+
+function applyTuningValue(key, rawValue) {
+  const previous = tuning[key];
+  const nextValue = key === 'particleCount' ? Math.round(rawValue) : rawValue;
+  if (previous === nextValue) return;
+  tuning[key] = nextValue;
+
+  if (key === 'particleCount') {
+    syncParticlePopulation();
+  } else if (key === 'particleYSpread') {
+    remapParticleVerticalSpread(previous, nextValue);
+  }
+
+  persistTuning();
+  updateAllTuningControls();
+}
+
+function setTuningPanelOpen(isOpen) {
+  if (!tuningPanel || !tuningToggle) return;
+  tuningPanel.classList.toggle('is-open', isOpen);
+  tuningPanel.setAttribute('aria-hidden', String(!isOpen));
+  tuningToggle.classList.toggle('is-open', isOpen);
+  tuningToggle.setAttribute('aria-expanded', String(isOpen));
+}
+
+function setupTuningController() {
+  if (!tuningControlsEl) return;
+
+  for (const def of TUNING_CONTROLS) {
+    const row = document.createElement('label');
+    row.className = 'tuning-row';
+    row.innerHTML = `
+      <div class="tuning-row-head">
+        <span class="tuning-label">${def.label}</span>
+        <span class="tuning-value"></span>
+      </div>
+      <input class="tuning-slider" type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${tuning[def.key]}">
+    `;
+
+    const input = row.querySelector('input');
+    const value = row.querySelector('.tuning-value');
+    input.addEventListener('input', () => applyTuningValue(def.key, Number(input.value)));
+
+    tuningInputMap.set(def.key, { input, value, def });
+    tuningControlsEl.appendChild(row);
+  }
+
+  tuningToggle?.addEventListener('click', () => {
+    setTuningPanelOpen(!tuningPanel.classList.contains('is-open'));
+  });
+
+  tuningResetBtn?.addEventListener('click', () => {
+    const previousSpread = tuning.particleYSpread;
+    Object.assign(tuning, DEFAULT_TUNING);
+    remapParticleVerticalSpread(previousSpread, tuning.particleYSpread);
+    syncParticlePopulation();
+    persistTuning();
+    updateAllTuningControls();
+    flashTuningStatus('RESET');
+  });
+
+  tuningCopyBtn?.addEventListener('click', async () => {
+    const payload = buildTuningExport();
+    updateTuningExport();
+    try {
+      await navigator.clipboard.writeText(payload);
+    } catch {
+      tuningExportEl?.focus();
+      tuningExportEl?.select();
+      document.execCommand('copy');
+    }
+    flashTuningStatus('COPIED');
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setTuningPanelOpen(false);
+  });
+
+  document.addEventListener('mousedown', (event) => {
+    if (!tuningPanel?.classList.contains('is-open')) return;
+    const target = event.target;
+    if (tuningPanel.contains(target) || tuningToggle?.contains(target)) return;
+    setTuningPanelOpen(false);
+  });
+
+  updateAllTuningControls();
 }
 
 function animate(now) {
@@ -1055,11 +1442,11 @@ function animate(now) {
   audioMod.waveComplexity = easeSignal(audioMod.waveComplexity, targetComplexity, 0.11, 0.17);
 
   // Pull the mesh flash back a notch so peaks read clearly without washing the page.
-  const targetAlpha = 0.11 + high * 0.08 + audioReactive.impact * 0.4;
+  const targetAlpha = tuning.meshAlphaBase + high * 0.06 + audioReactive.impact * tuning.meshPeakAlphaInfluence;
   audioMod.meshAlpha = easeSignal(audioMod.meshAlpha, targetAlpha, 0.32, 0.28);
-  const targetLineWidth = 0.25 + audioReactive.impact * 0.26;
+  const targetLineWidth = tuning.meshLineWidthBase + audioReactive.impact * tuning.meshLineWidthPeakInfluence;
   audioMod.meshLineWidth = easeSignal(audioMod.meshLineWidth, targetLineWidth, 0.28, 0.24);
-  audioMod.particleBoost = 1.0 + high * 0.55 + audioReactive.impact * 0.9;
+  audioMod.particleBoost = (1.0 + high * 0.55 + audioReactive.impact * 0.9) * tuning.particleBoost;
   audioMod.rainBoost = 1.0;
   audioMod.uiSignal = easeSignal(
     audioMod.uiSignal,
@@ -1081,6 +1468,7 @@ function animate(now) {
   requestAnimationFrame(animate);
 }
 
+setupTuningController();
 requestAnimationFrame(animate);
 
 // ═══════════════════════════════════════════════════════
