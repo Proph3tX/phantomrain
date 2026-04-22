@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/favicon.png">
 <title>PHANTOMRA.IN — GENERATIVE PHANTOM REALMS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,6 +282,85 @@
     pointer-events: auto; /* override bar's none so controls are clickable */
   }
 
+  #player-source {
+    position: relative;
+  }
+
+  #player-source-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.34);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1.6px;
+    padding: 4px 7px;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.68;
+    transition: opacity 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+
+  #player-source-btn:hover,
+  #player-source-btn.is-open {
+    opacity: 1;
+    border-color: var(--red);
+    box-shadow: 0 0 8px rgba(255,34,34,0.2);
+  }
+
+  #source-panel {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    min-width: 188px;
+    padding: 8px;
+    border: var(--border);
+    background: rgba(0,0,0,0.94);
+    font-family: var(--mono);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    z-index: 32;
+  }
+
+  #source-panel.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .source-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-align: left;
+    padding: 7px 8px;
+    cursor: pointer;
+    opacity: 0.72;
+    transition: opacity 0.15s, border-color 0.15s, background-color 0.15s;
+  }
+
+  .source-option:hover,
+  .source-option.is-active {
+    opacity: 1;
+    border-color: rgba(255,34,34,0.3);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .source-option__index {
+    color: rgba(255,34,34,0.82);
+    text-shadow: 0 0 4px rgba(255,34,34,0.28);
+  }
+
+  #player-skip-btn,
   #player-btn {
     background: none;
     border: none;
@@ -295,12 +375,50 @@
     transition: color 0.15s;
   }
 
+  #player-skip-btn {
+    opacity: 0.78;
+    min-width: 16px;
+  }
+
+  #player-skip-btn:hover,
   #player-btn:hover { color: var(--white); filter: brightness(1.6); }
 
   #player-track {
+    display: inline-block;
     letter-spacing: 1px;
     opacity: 0.75;
     min-width: 88px;
+  }
+
+  /* Keep the retune cue bound to the song glyphs so source changes feel local. */
+  #player-track.is-retuning {
+    animation: player-retune 180ms steps(2, end);
+  }
+
+  @keyframes player-retune {
+    0% {
+      opacity: 0.72;
+      transform: translateX(0);
+      text-shadow: none;
+    }
+    38% {
+      opacity: 1;
+      transform: translateX(1px);
+      text-shadow:
+        1px 0 0 rgba(255,255,255,0.42),
+        -1px 0 0 rgba(255,34,34,0.58);
+    }
+    76% {
+      transform: translateX(-1px);
+      text-shadow:
+        -1px 0 0 rgba(255,255,255,0.36),
+        1px 0 0 rgba(255,34,34,0.42);
+    }
+    100% {
+      opacity: 0.75;
+      transform: translateX(0);
+      text-shadow: none;
+    }
   }
 
   #player-time {
@@ -310,11 +428,25 @@
     font-variant-numeric: tabular-nums;
   }
 
+  #player-volume {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 126px;
+  }
+
+  #player-volume-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    opacity: 0.58;
+    white-space: nowrap;
+  }
+
   /* Seek/progress slider */
-  #player-seek {
+  #player-seek,
+  #player-volume-slider {
     -webkit-appearance: none;
     appearance: none;
-    width: 108px;
     height: 2px;
     background: rgba(255,255,255,0.22);
     outline: none;
@@ -324,7 +456,16 @@
     flex-shrink: 0;
   }
 
-  #player-seek::-webkit-slider-thumb {
+  #player-seek {
+    width: 108px;
+  }
+
+  #player-volume-slider {
+    width: 72px;
+  }
+
+  #player-seek::-webkit-slider-thumb,
+  #player-volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 5px;
@@ -334,7 +475,8 @@
     cursor: pointer;
   }
 
-  #player-seek::-moz-range-thumb {
+  #player-seek::-moz-range-thumb,
+  #player-volume-slider::-moz-range-thumb {
     width: 5px;
     height: 5px;
     background: var(--white);
@@ -346,6 +488,10 @@
   @media (max-width: 768px) {
     #player-track { display: none; }
     #player-seek  { width: 60px; }
+    #player-volume-label { display: none; }
+    #player-volume { min-width: 76px; }
+    #player-volume-slider { width: 48px; }
+    #source-panel { left: auto; right: 0; }
   }
 
   /* ── Main scroll container ── */
@@ -659,6 +805,12 @@
     #main { padding-left: 20px; padding-right: 20px; }
     .hero-title { letter-spacing: -1px; }
   }
+  
+  .player-separator {
+  margin: 0 8px;  
+  color: rgba(255,2,34);
+  text-shadow: 0 0 4px rgba(255,34,34,0.5);
+}
 </style>
 </head>
 <body>
@@ -694,14 +846,24 @@
 <!-- Bottom status bar -->
 <div id="chrome-bottom">
   <span>©PHANTOMRA.IN</span>
-  <span class="coord">ZPHANTOMRA.IN 2026</span>
+  <span class="coord">PHANTOMRA.IN 2026 // PX</span>
   <!-- Right column: player + clock -->
   <div id="chrome-bottom-right">
     <div id="player">
+      <div id="player-source">
+        <button id="player-source-btn" type="button" aria-expanded="false" aria-controls="source-panel">SOURCE</button>
+        <div id="source-panel" aria-hidden="true"></div>
+      </div>
+      <button id="player-skip-btn" type="button" title="Skip track">&gt;&gt;</button>
       <button id="player-btn" title="Play / Pause">▶</button>
       <span id="player-track">CHROMEDREAM</span>
       <input type="range" id="player-seek" min="0" max="100" value="0" step="0.1">
       <span id="player-time">0:00</span>
+      <div id="player-volume">
+        <span class="player-separator">//</span>
+        <span id="player-volume-label">SIGNAL LEVEL</span>
+        <input type="range" id="player-volume-slider" min="0" max="100" value="40" step="1" aria-label="Signal level">
+      </div>
     </div>
     <span id="status-clock">00/00::0000+</span>
   </div>
@@ -1587,19 +1749,33 @@ function updateAudioReactive() {
 // filled/unfilled split stays in sync with playback position.
 // ═══════════════════════════════════════════════════════
 (function () {
+  const PLAYER_VOLUME_KEY = 'phantomrain-player-volume';
   const PLAYLIST = [
     { src: 'Music/chromedream.mp3', label: 'CHROMEDREAM' },
-    { src: 'Music/monochromerain.mp3',  label: 'MONOCHROMERAIN'  }
+    { src: 'Music/monochromerain.mp3',  label: 'MONOCHROMERAIN'},
+	{ src: 'Music/liquiddrifter.mp3',  label: 'LIQUIDDRIFTER'},
+	{ src: 'Music/silversky.mp3',  label: 'SILVERSKY'}
   ];
 
   let trackIdx = 0;
+  let retuneTimer = 0;
   const audio = new Audio();
-  audio.volume = 1;
+  let storedVolume = 0.4;
+  try {
+    const rawVolume = localStorage.getItem(PLAYER_VOLUME_KEY);
+    if (rawVolume !== null) storedVolume = Math.min(1, Math.max(0, Number(rawVolume)));
+  } catch {}
+  audio.volume = storedVolume;
 
-  const btn       = document.getElementById('player-btn');
-  const seekEl    = document.getElementById('player-seek');
-  const trackEl   = document.getElementById('player-track');
-  const timeEl    = document.getElementById('player-time');
+  const btn         = document.getElementById('player-btn');
+  const skipBtn     = document.getElementById('player-skip-btn');
+  const sourceWrap  = document.getElementById('player-source');
+  const sourceBtn   = document.getElementById('player-source-btn');
+  const sourcePanel = document.getElementById('source-panel');
+  const seekEl      = document.getElementById('player-seek');
+  const trackEl     = document.getElementById('player-track');
+  const timeEl      = document.getElementById('player-time');
+  const volumeEl    = document.getElementById('player-volume-slider');
 
   function fmt(s) {
     const m = Math.floor(s / 60);
@@ -1612,13 +1788,60 @@ function updateAudioReactive() {
       `linear-gradient(to right, rgba(255,255,255,0.85) ${pct}%, rgba(255,255,255,0.22) ${pct}%)`;
   }
 
-  function loadTrack(idx, autoplay) {
-    trackIdx = idx % PLAYLIST.length;
+  function setVolumeFill(pct) {
+    volumeEl.style.background =
+      `linear-gradient(to right, rgba(255,34,34,0.85) ${pct}%, rgba(255,255,255,0.22) ${pct}%)`;
+  }
+
+  function setSourcePanelOpen(open) {
+    sourceBtn.classList.toggle('is-open', open);
+    sourceBtn.setAttribute('aria-expanded', String(open));
+    sourcePanel.classList.toggle('is-open', open);
+    sourcePanel.setAttribute('aria-hidden', String(!open));
+  }
+
+  function renderSourcePanel() {
+    sourcePanel.innerHTML = '';
+    PLAYLIST.forEach((track, idx) => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'source-option' + (idx === trackIdx ? ' is-active' : '');
+      option.dataset.trackIdx = String(idx);
+      option.setAttribute('aria-pressed', idx === trackIdx ? 'true' : 'false');
+
+      const index = document.createElement('span');
+      index.className = 'source-option__index';
+      index.textContent = `0${idx + 1}`.slice(-2);
+
+      const label = document.createElement('span');
+      label.textContent = track.label;
+
+      option.append(index, label);
+      sourcePanel.appendChild(option);
+    });
+  }
+
+  function triggerRetune() {
+    clearTimeout(retuneTimer);
+    trackEl.classList.remove('is-retuning');
+    void trackEl.offsetWidth;
+    trackEl.classList.add('is-retuning');
+    // A tiny source-switch pulse nudges the existing reactive system without
+    // creating a separate transition layer or touching the main glitch loop.
+    audioReactive.impact = Math.max(audioReactive.impact, 0.18);
+    audioMod.uiSignal = Math.max(audioMod.uiSignal, 0.12);
+    retuneTimer = setTimeout(() => trackEl.classList.remove('is-retuning'), 190);
+  }
+
+  function loadTrack(idx, autoplay, { retune = false } = {}) {
+    trackIdx = (idx + PLAYLIST.length) % PLAYLIST.length;
     audio.src = PLAYLIST[trackIdx].src;
     trackEl.textContent = PLAYLIST[trackIdx].label;
     seekEl.value = 0;
     timeEl.textContent = '0:00';
     setSeekFill(0);
+    renderSourcePanel();
+    if (retune) triggerRetune();
     if (autoplay) audio.play().catch(() => {});
   }
 
@@ -1632,7 +1855,7 @@ function updateAudioReactive() {
   });
 
   // Auto-advance to next track
-  audio.addEventListener('ended', () => loadTrack(trackIdx + 1, true));
+  audio.addEventListener('ended', () => loadTrack(trackIdx + 1, true, { retune: true }));
 
   // Update button icon to reflect actual playback state
   audio.addEventListener('play',  () => { btn.textContent = '▐▐'; });
@@ -1645,6 +1868,29 @@ function updateAudioReactive() {
     if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
     if (audio.paused) audio.play().catch(() => {});
     else audio.pause();
+  });
+
+  skipBtn.addEventListener('click', () => {
+    initAudioContext(audio);
+    if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+    loadTrack(trackIdx + 1, !audio.paused, { retune: true });
+  });
+
+  sourceBtn.addEventListener('click', () => {
+    setSourcePanelOpen(!sourcePanel.classList.contains('is-open'));
+  });
+
+  sourcePanel.addEventListener('click', (event) => {
+    const option = event.target.closest('.source-option');
+    if (!option) return;
+    initAudioContext(audio);
+    if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+    loadTrack(Number(option.dataset.trackIdx), true, { retune: true });
+    setSourcePanelOpen(false);
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!sourceWrap.contains(event.target)) setSourcePanelOpen(false);
   });
   
   //Start audio on click
@@ -1662,8 +1908,20 @@ function updateAudioReactive() {
     setSeekFill(Number(seekEl.value));
   });
 
+  volumeEl.value = Math.round(audio.volume * 100);
+  setVolumeFill(Number(volumeEl.value));
+  volumeEl.addEventListener('input', () => {
+    const nextVolume = Number(volumeEl.value) / 100;
+    audio.volume = nextVolume;
+    setVolumeFill(Number(volumeEl.value));
+    try {
+      localStorage.setItem(PLAYER_VOLUME_KEY, String(nextVolume));
+    } catch {}
+  });
+
   // Load first track (not autoplaying — browser autoplay policy)
   loadTrack(0, false);
+  setSourcePanelOpen(false);
 })();
 
 // ═══════════════════════════════════════════════════════
