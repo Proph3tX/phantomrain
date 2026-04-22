@@ -1115,10 +1115,6 @@ function drawTerrain(t) {
   ctx.lineWidth = audioMod.meshLineWidth;
 
   const pulse = Math.min(1, audioReactive.impact * 0.8 + audioMod.uiSignal * 0.4);
-  const meshRedBase = tuning.meshRedBase;
-  const meshRedPeak = tuning.meshRedPeak;
-  const verticalRedBase = meshRedBase * 0.1875;
-  const verticalRedPeak = meshRedPeak * 0.77778;
 
   // ── Horizontal rows ─────────────────────────────
   for (let iz = 0; iz <= gridZ; iz++) {
@@ -1146,7 +1142,7 @@ function drawTerrain(t) {
     grad.addColorStop(0.48, `rgba(200,200,200,${alpha * 0.8})`);
 
     // subtle red injection (audio reactive)
-    grad.addColorStop(0.50, `rgba(255,34,34,${alpha * (meshRedBase + pulse * meshRedPeak)})`);
+    grad.addColorStop(0.50, `rgba(255,34,34,${alpha * (0.80 + pulse * 0.45)})`);
 
     grad.addColorStop(0.52, `rgba(200,200,200,${alpha * 0.8})`);
     grad.addColorStop(0.75, `rgba(120,120,120,${alpha * 0.55})`);
@@ -1189,7 +1185,7 @@ function drawTerrain(t) {
     grad.addColorStop(0.50, `rgba(255,255,255,${alpha * 0.9})`);
 
     // subtle vertical red bias (less than horizontal)
-    grad.addColorStop(0.60, `rgba(255,34,34,${alpha * (verticalRedBase + pulse * verticalRedPeak)})`);
+    grad.addColorStop(0.60, `rgba(255,34,34,${alpha * (0.15 + pulse * 0.35)})`);
 
     grad.addColorStop(1.00, `rgba(50,50,50,${alpha * 0.25})`);
 
@@ -1222,15 +1218,13 @@ const DEFAULT_TUNING = Object.freeze({
   particleYSpread: 545,
   particleRecentering: 0.00013,
   particleBoost: 2.81,
-  meshAlphaBase: 0.43,
+  meshAlphaBase: 0.13,
   meshPeakAlphaInfluence: 0.28,
   meshLineWidthBase: 0.48,
   meshLineWidthPeakInfluence: 0.39,
-  meshRedBase: 1.5,
-  meshRedPeak: 1.5,
   dotEnergyMultiplier: 5,
   signalCoreRadius: 690,
-  signalCoreLocalPush: 3.61,
+  signalCoreLocalPush: 3.61
 });
 
 const TUNING_CONTROLS = [
@@ -1242,8 +1236,6 @@ const TUNING_CONTROLS = [
   { key: 'meshPeakAlphaInfluence', label: 'Mesh Peak Alpha', min: 0, max: 1.5, step: 0.01 },
   { key: 'meshLineWidthBase', label: 'Mesh Line Base', min: 0.01, max: 1.2, step: 0.01 },
   { key: 'meshLineWidthPeakInfluence', label: 'Mesh Line Peak', min: 0, max: 1.2, step: 0.01 },
-  { key: 'meshRedBase', label: 'Mesh Red Min', min: 0, max: 1.5, step: 0.01 },
-  { key: 'meshRedPeak', label: 'Mesh Red Max', min: 0, max: 1.5, step: 0.01 },
   { key: 'dotEnergyMultiplier', label: 'Dot Energy', min: 0, max: 8.0, step: 0.01 },
   { key: 'signalCoreRadius', label: 'Signal Core Radius', min: 0, max: 800, step: 1 },
   { key: 'signalCoreLocalPush', label: 'Signal Core Push', min: 0, max: 4.0, step: 0.01 },
@@ -1535,14 +1527,9 @@ function formatTuningValue(def, value) {
 }
 
 function buildTuningExport() {
-  const lines = ['const DEFAULT_TUNING = Object.freeze({'];
-  for (const { key } of TUNING_CONTROLS) {
-    const value = tuning[key];
-    const formatted = Number.isInteger(value) ? value : Number(value.toFixed(5));
-    lines.push(`  ${key}: ${formatted},`);
-  }
-  lines.push('});');
-  return lines.join('\n');
+  const out = {};
+  for (const { key } of TUNING_CONTROLS) out[key] = tuning[key];
+  return JSON.stringify(out, null, 2);
 }
 
 function updateTuningExport() {
