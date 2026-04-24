@@ -12,7 +12,8 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --red: #ff2222;
+    --accent-hue: 0;
+    --accent: hsl(var(--accent-hue), 100%, 57%);
     --white: #ffffff;
     --black: #000000;
     --mono: 'Space Mono', monospace;
@@ -98,8 +99,8 @@
   #tuning-toggle:hover,
   #tuning-toggle.is-open {
     opacity: 1;
-    border-color: var(--red);
-    box-shadow: 0 0 10px rgba(255,34,34,0.24);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px hsla(var(--accent-hue),100%,57%,0.24);
   }
 
   #tuning-panel {
@@ -175,7 +176,7 @@
   }
 
   .tuning-value {
-    color: var(--red);
+    color: var(--accent);
   }
 
   .tuning-slider {
@@ -196,7 +197,7 @@
     height: 7px;
     background: var(--white);
     border-radius: 0;
-    box-shadow: 0 0 8px rgba(255,34,34,0.22);
+    box-shadow: 0 0 8px hsla(var(--accent-hue),100%,57%,0.22);
   }
 
   .tuning-slider::-moz-range-thumb {
@@ -205,7 +206,7 @@
     border: none;
     background: var(--white);
     border-radius: 0;
-    box-shadow: 0 0 8px rgba(255,34,34,0.22);
+    box-shadow: 0 0 8px hsla(var(--accent-hue),100%,57%,0.22);
   }
 
   .tuning-actions {
@@ -229,8 +230,8 @@
   }
 
   .tuning-btn:hover {
-    border-color: var(--red);
-    box-shadow: 0 0 10px rgba(255,34,34,0.18);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px hsla(var(--accent-hue),100%,57%,0.18);
   }
 
   #tuning-export {
@@ -303,8 +304,8 @@
   #player-source-btn:hover,
   #player-source-btn.is-open {
     opacity: 1;
-    border-color: var(--red);
-    box-shadow: 0 0 8px rgba(255,34,34,0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 8px hsla(var(--accent-hue),100%,57%,0.2);
   }
 
   #source-panel {
@@ -351,13 +352,13 @@
   .source-option:hover,
   .source-option.is-active {
     opacity: 1;
-    border-color: rgba(255,34,34,0.3);
+    border-color: hsla(var(--accent-hue),100%,57%,0.3);
     background: rgba(255,255,255,0.03);
   }
 
   .source-option__index {
-    color: rgba(255,34,34,0.82);
-    text-shadow: 0 0 4px rgba(255,34,34,0.28);
+    color: hsla(var(--accent-hue),100%,57%,0.82);
+    text-shadow: 0 0 4px hsla(var(--accent-hue),100%,57%,0.28);
   }
 
   #player-skip-btn,
@@ -406,13 +407,13 @@
       transform: translateX(1px);
       text-shadow:
         1px 0 0 rgba(255,255,255,0.42),
-        -1px 0 0 rgba(255,34,34,0.58);
+        -1px 0 0 hsla(var(--accent-hue),100%,57%,0.58);
     }
     76% {
       transform: translateX(-1px);
       text-shadow:
         -1px 0 0 rgba(255,255,255,0.36),
-        1px 0 0 rgba(255,34,34,0.42);
+        1px 0 0 hsla(var(--accent-hue),100%,57%,0.42);
     }
     100% {
       opacity: 0.75;
@@ -530,12 +531,12 @@
 
   .hero-title__dot {
     display: inline-block;
-    color: var(--red);
+    color: var(--accent);
     transform: translateY(-0.035em) scale(calc(1 + var(--dot-energy) * 0.16));
     /* Keep the signal bloom on the glyph itself so stronger peaks feel alive without drift. */
     text-shadow:
-      0 0 calc(5px + var(--dot-energy) * 9px) rgba(255,34,34, calc(0.44 + var(--dot-energy) * 0.26)),
-      0 0 calc(1px + var(--dot-energy) * 2px) rgba(255,34,34, calc(0.44 + var(--dot-energy) * 0.18)),
+      0 0 calc(5px + var(--dot-energy) * 9px) hsla(var(--accent-hue),100%,57%,calc(0.44 + var(--dot-energy) * 0.26)),
+      0 0 calc(1px + var(--dot-energy) * 2px) hsla(var(--accent-hue),100%,57%,calc(0.44 + var(--dot-energy) * 0.18)),
       0 0 1px rgba(255,255,255,0.92);
     transition: color 0.12s ease, transform 0.12s ease, text-shadow 0.12s ease;
   }
@@ -562,7 +563,7 @@
     background: linear-gradient(
       90deg,
       rgba(255,255,255,0.02),
-      rgba(255,34,34,calc(0.03 + var(--cta-energy) * 0.08)) 52%,
+      hsla(var(--accent-hue),100%,57%,calc(0.03 + var(--cta-energy) * 0.08)) 52%,
       rgba(255,255,255,0.02)
     );
     padding: 14px 28px 14px 42px;
@@ -581,8 +582,8 @@
     width: 6px;
     height: 6px;
     border: 1px solid rgba(255,255,255,0.72);
-    background: rgba(255,34,34,calc(0.30 + var(--cta-energy) * 0.42));
-    box-shadow: 0 0 18px rgba(255,34,34,calc(0.10 + var(--cta-energy) * 0.32));
+    background: hsla(var(--accent-hue),100%,57%,calc(0.30 + var(--cta-energy) * 0.42));
+    box-shadow: 0 0 18px hsla(var(--accent-hue),100%,57%,calc(0.10 + var(--cta-energy) * 0.32));
     transform: translateY(-50%) scale(calc(1 + var(--cta-energy) * 0.42));
     transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
   }
@@ -594,7 +595,7 @@
     right: 12px;
     bottom: 7px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,34,34,0.85), transparent);
+    background: linear-gradient(90deg, transparent, hsla(var(--accent-hue),100%,57%,0.85), transparent);
     opacity: calc(0.08 + var(--cta-energy) * 0.45);
     transform: scaleX(calc(0.38 + var(--cta-energy) * 0.58));
     transition: opacity 0.15s, transform 0.15s;
@@ -609,18 +610,18 @@
   .cta-btn:focus-visible {
     background: rgba(255,255,255,0.94);
     color: var(--black);
-    border-color: var(--red);
+    border-color: var(--accent);
     box-shadow:
-      0 0 12px rgba(255,34,34,0.72),
-      0 0 2px var(--red),
-      inset 0 0 0 1px rgba(255,34,34,0.16);
+      0 0 12px hsla(var(--accent-hue),100%,57%,0.72),
+      0 0 2px var(--accent),
+      inset 0 0 0 1px hsla(var(--accent-hue),100%,57%,0.16);
     letter-spacing: 3.6px;
     transform: translateY(-1px);
   }
 
   .cta-btn:hover::before,
   .cta-btn:focus-visible::before {
-    border-color: var(--red);
+    border-color: var(--accent);
     transform: translateY(-50%) scale(1.35);
   }
 
@@ -665,8 +666,8 @@
   }
 
   .project-card:hover {
-    border-color: var(--red);
-    background: rgba(255,34,34,0.04);
+    border-color: var(--accent);
+    background: hsla(var(--accent-hue),100%,57%,0.04);
   }
 
   .project-num {
@@ -789,7 +790,7 @@
 
   .links-list a:hover {
     opacity: 1;
-    border-color: var(--red);
+    border-color: var(--accent);
     color: var(--white);
   }
 
@@ -808,8 +809,8 @@
   
   .player-separator {
   margin: 0 8px;  
-  color: rgba(255,2,34);
-  text-shadow: 0 0 4px rgba(255,34,34,0.5);
+  color: var(--accent);
+  text-shadow: 0 0 4px hsla(var(--accent-hue),100%,57%,0.5);
 }
 </style>
 </head>
@@ -1091,15 +1092,29 @@ function buildTerrainVertices(t) {
       const nz = z3 * T_NOISE_SCALE;
 
       const wc = audioMod.waveComplexity;
-      const h =
+      const motion = audioMod.meshMotion * tuning.meshMotionSensitivity;
+      const ripple = audioMod.meshRipple * tuning.meshRippleSensitivity;
+
+      // Preserve the original rolling-landscape behavior as the base layer.
+      // Audio should push the terrain that is already traveling, not replace it
+      // with per-frame phase twitching.
+      const baseRoll =
         Math.sin(2.10 * ( nx * 1.000 + nz * 0.000) + t * 0.85) * 0.40 +
         Math.sin(1.65 * ( nx * 0.707 + nz * 0.707) + t * 0.65) * 0.30 +
         Math.sin(2.75 * (-nx * 0.500 + nz * 0.866) + t * 1.05) * 0.18 * wc +
         Math.sin(1.30 * (-nx * 0.940 - nz * 0.342) + t * 0.55) * 0.12 * wc +
         Math.sin(3.40 * ( nx * 0.174 - nz * 0.985) + t * 1.35) * 0.06 * wc;
 
-      const rough = Noise.noise2(nx * 1.6 + t * 0.18, nz * 1.6 + t * 0.14) * 0.13;
-      const y3    = (h + rough) * audioMod.noiseAmp;
+      // A smaller signal layer rides over the rolling base. These are still
+      // traveling waves, so beats read as moving contour changes instead of
+      // the mesh snapping in place.
+      const signalRoll =
+        Math.sin(3.15 * ( nx * 0.350 + nz * 0.937) + t * 1.52) * 0.075 * motion +
+        Math.sin(4.40 * (-nx * 0.766 + nz * 0.643) + t * 1.86) * 0.052 * ripple +
+        Math.sin(5.20 * ( nx * 0.966 - nz * 0.259) + t * 2.10) * 0.030 * ripple * wc;
+
+      const rough = Noise.noise2(nx * 1.6 + t * 0.18, nz * 1.6 + t * 0.14) * (0.13 + ripple * 0.035);
+      const y3    = (baseRoll + signalRoll + rough) * audioMod.noiseAmp;
 
       row.push({ x3, y3, z3 });
     }
@@ -1142,7 +1157,7 @@ function drawTerrain(t) {
     grad.addColorStop(0.48, `rgba(200,200,200,${alpha * 0.8})`);
 
     // subtle red injection (audio reactive)
-    grad.addColorStop(0.50, `rgba(255,34,34,${alpha * (0.80 + pulse * 0.45)})`);
+    grad.addColorStop(0.50, accentHsla(alpha * (0.78 + pulse * 0.72)));
 
     grad.addColorStop(0.52, `rgba(200,200,200,${alpha * 0.8})`);
     grad.addColorStop(0.75, `rgba(120,120,120,${alpha * 0.55})`);
@@ -1185,7 +1200,7 @@ function drawTerrain(t) {
     grad.addColorStop(0.50, `rgba(255,255,255,${alpha * 0.9})`);
 
     // subtle vertical red bias (less than horizontal)
-    grad.addColorStop(0.60, `rgba(255,34,34,${alpha * (0.15 + pulse * 0.35)})`);
+    grad.addColorStop(0.60, accentHsla(alpha * (0.18 + pulse * 0.55)));
 
     grad.addColorStop(1.00, `rgba(50,50,50,${alpha * 0.25})`);
 
@@ -1218,13 +1233,16 @@ const DEFAULT_TUNING = Object.freeze({
   particleYSpread: 545,
   particleRecentering: 0.00013,
   particleBoost: 2.81,
-  meshAlphaBase: 0.13,
+  meshAlphaBase: 0.35,
   meshPeakAlphaInfluence: 0.28,
   meshLineWidthBase: 0.48,
   meshLineWidthPeakInfluence: 0.39,
+  meshMotionSensitivity: 1,
+  meshRippleSensitivity: 1,
+  accentHue: 0,
   dotEnergyMultiplier: 5,
   signalCoreRadius: 690,
-  signalCoreLocalPush: 3.61
+  signalCoreLocalPush: 3.61,
 });
 
 const TUNING_CONTROLS = [
@@ -1236,6 +1254,9 @@ const TUNING_CONTROLS = [
   { key: 'meshPeakAlphaInfluence', label: 'Mesh Peak Alpha', min: 0, max: 1.5, step: 0.01 },
   { key: 'meshLineWidthBase', label: 'Mesh Line Base', min: 0.01, max: 1.2, step: 0.01 },
   { key: 'meshLineWidthPeakInfluence', label: 'Mesh Line Peak', min: 0, max: 1.2, step: 0.01 },
+  { key: 'meshMotionSensitivity', label: 'Mesh Motion', min: 0, max: 2.5, step: 0.01 },
+  { key: 'meshRippleSensitivity', label: 'Mesh Ripple', min: 0, max: 2.5, step: 0.01 },
+  { key: 'accentHue', label: 'Accent Hue', min: 0, max: 359, step: 1 },
   { key: 'dotEnergyMultiplier', label: 'Dot Energy', min: 0, max: 8.0, step: 0.01 },
   { key: 'signalCoreRadius', label: 'Signal Core Radius', min: 0, max: 800, step: 1 },
   { key: 'signalCoreLocalPush', label: 'Signal Core Push', min: 0, max: 4.0, step: 0.01 },
@@ -1294,6 +1315,7 @@ function remapParticleVerticalSpread(previousSpread, nextSpread) {
 }
 
 syncParticlePopulation();
+applyAccentCss();
 
 function drawParticles() {
   for (const p of particles) {
@@ -1383,7 +1405,7 @@ function drawParticles() {
       ctx.beginPath();
       ctx.moveTo(tx, ty);
       ctx.lineTo(proj.sx, proj.sy);
-      ctx.strokeStyle = `rgba(255,34,34,${Math.min(1, finalAlpha * (0.16 + p.pulse * 0.28))})`;
+      ctx.strokeStyle = accentHsla(Math.min(1, finalAlpha * (0.16 + p.pulse * 0.28)));
       ctx.lineWidth = 0.8;
       ctx.stroke();
     }
@@ -1396,7 +1418,7 @@ function drawParticles() {
     // Dot
     ctx.beginPath();
     ctx.arc(proj.sx, proj.sy, pulseRadius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(239,11,11,${pulseAlpha})`;
+    ctx.fillStyle = accentHsla(pulseAlpha, -2, 100, 53);
     ctx.fill();
   }
 }
@@ -1475,6 +1497,8 @@ const audioMod = {
   particleBoost: tuning.particleBoost,         // multiplier on particle alpha
   meshLineWidth: tuning.meshLineWidthBase,
   uiSignal:      0,
+  meshMotion:    0,
+  meshRipple:    0,
   meshAlpha:     0.17,        // terrain grid globalAlpha — flashes on highs
   waveComplexity: 1.0,        // scales higher-freq wave layers on mids
 };
@@ -1492,6 +1516,14 @@ const tuningExportEl = document.getElementById('tuning-export');
 const tuningStatusEl = document.getElementById('tuning-status');
 const tuningInputMap = new Map();
 let tuningStatusTimer = null;
+
+function accentHsla(alpha = 1, hueOffset = 0, sat = 100, light = 57) {
+  return `hsla(${(tuning.accentHue + hueOffset + 360) % 360}, ${sat}%, ${light}%, ${alpha})`;
+}
+
+function applyAccentCss() {
+  document.documentElement.style.setProperty('--accent-hue', String((tuning.accentHue + 360) % 360));
+}
 
 function easeSignal(current, target, rise, fall) {
   return current + (target - current) * (target > current ? rise : fall);
@@ -1527,9 +1559,14 @@ function formatTuningValue(def, value) {
 }
 
 function buildTuningExport() {
-  const out = {};
-  for (const { key } of TUNING_CONTROLS) out[key] = tuning[key];
-  return JSON.stringify(out, null, 2);
+  const lines = ['const DEFAULT_TUNING = Object.freeze({'];
+  for (const { key } of TUNING_CONTROLS) {
+    const value = tuning[key];
+    const rendered = Number.isFinite(value) ? value : JSON.stringify(value);
+    lines.push(`  ${key}: ${rendered},`);
+  }
+  lines.push('});');
+  return lines.join('\n');
 }
 
 function updateTuningExport() {
@@ -1572,6 +1609,8 @@ function applyTuningValue(key, rawValue) {
     syncParticlePopulation();
   } else if (key === 'particleYSpread') {
     remapParticleVerticalSpread(previous, nextValue);
+  } else if (key === 'accentHue') {
+    applyAccentCss();
   }
 
   persistTuning();
@@ -1617,6 +1656,7 @@ function setupTuningController() {
     Object.assign(tuning, DEFAULT_TUNING);
     remapParticleVerticalSpread(previousSpread, tuning.particleYSpread);
     syncParticlePopulation();
+    applyAccentCss();
     persistTuning();
     updateAllTuningControls();
     flashTuningStatus('RESET');
@@ -1658,18 +1698,25 @@ function animate(now) {
   const { bass, mid, high } = audioReactive;
 
   // Lower rest state, then let short peaks hit harder and recover faster.
-  const targetAmp = T_NOISE_AMP * (0.84 + bass * 1.18 + audioReactive.bassPeak * 1.04);
-  audioMod.noiseAmp = easeSignal(audioMod.noiseAmp, targetAmp, 0.12, 0.19);
+  const motionPulse = Math.min(1, audioReactive.bassPeak * 0.72 + audioReactive.midPeak * 0.48 + audioReactive.bassFlux * 0.62 + audioReactive.midFlux * 0.38);
+  const ripplePulse = Math.min(1, audioReactive.midPeak * 0.64 + audioReactive.highPeak * 0.36 + audioReactive.midFlux * 0.56 + audioReactive.highFlux * 0.24);
 
-  const targetSpeed = 0.94 + mid * 0.82 + audioReactive.midPeak * 0.5;
-  audioMod.timeScale = easeSignal(audioMod.timeScale, targetSpeed, 0.11, 0.16);
-  const targetComplexity = 0.96 + mid * 1.25 + audioReactive.midPeak * 0.9;
-  audioMod.waveComplexity = easeSignal(audioMod.waveComplexity, targetComplexity, 0.11, 0.17);
+  const targetAmp = T_NOISE_AMP * (0.90 + bass * 0.88 + audioReactive.bassPeak * 0.82 + audioReactive.bassFlux * 0.36);
+  audioMod.noiseAmp = easeSignal(audioMod.noiseAmp, targetAmp, 0.12, 0.16);
+
+  // Keep a steady forward roll at all times. Mid/high activity can accelerate
+  // the terrain, but should not dominate the base travel speed.
+  const targetSpeed = 1.0 + mid * 0.38 + audioReactive.midPeak * 0.26 + audioReactive.midFlux * 0.16;
+  audioMod.timeScale = easeSignal(audioMod.timeScale, targetSpeed, 0.08, 0.10);
+  const targetComplexity = 0.96 + mid * 0.72 + audioReactive.midPeak * 0.54 + audioReactive.highFlux * 0.22;
+  audioMod.waveComplexity = easeSignal(audioMod.waveComplexity, targetComplexity, 0.10, 0.13);
+  audioMod.meshMotion = easeSignal(audioMod.meshMotion, motionPulse, 0.18, 0.16);
+  audioMod.meshRipple = easeSignal(audioMod.meshRipple, ripplePulse, 0.20, 0.18);
 
   // Pull the mesh flash back a notch so peaks read clearly without washing the page.
-  const targetAlpha = tuning.meshAlphaBase + high * 0.06 + audioReactive.impact * tuning.meshPeakAlphaInfluence;
+  const targetAlpha = tuning.meshAlphaBase + high * 0.06 + audioReactive.impact * tuning.meshPeakAlphaInfluence + audioReactive.highFlux * 0.08;
   audioMod.meshAlpha = easeSignal(audioMod.meshAlpha, targetAlpha, 0.32, 0.28);
-  const targetLineWidth = tuning.meshLineWidthBase + audioReactive.impact * tuning.meshLineWidthPeakInfluence;
+  const targetLineWidth = tuning.meshLineWidthBase + (audioReactive.impact + audioReactive.midFlux * 0.5) * tuning.meshLineWidthPeakInfluence;
   audioMod.meshLineWidth = easeSignal(audioMod.meshLineWidth, targetLineWidth, 0.28, 0.24);
   audioMod.particleBoost = (1.0 + high * 0.55 + audioReactive.impact * 0.9) * tuning.particleBoost;
   audioMod.rainBoost = 1.0;
@@ -1735,6 +1782,12 @@ const audioReactive = {
   midPeak: 0,
   highPeak: 0,
   impact: 0,
+  bassFlux: 0,
+  midFlux: 0,
+  highFlux: 0,
+  rawBassPrev: 0,
+  rawMidPrev: 0,
+  rawHighPrev: 0,
 };
 
 let _audioCtx = null, _analyser = null, _freqData = null;
@@ -1744,7 +1797,7 @@ function initAudioContext(audioEl) {
   _audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
   _analyser  = _audioCtx.createAnalyser();
   _analyser.fftSize = 256;                  // 128 frequency bins
-  _analyser.smoothingTimeConstant = 0.82;   // inter-frame smoothing from Web Audio
+  _analyser.smoothingTimeConstant = 0.72;   // enough detail for beats, but still preserves rolling motion
   _freqData  = new Uint8Array(_analyser.frequencyBinCount);
 
   const src = _audioCtx.createMediaElementSource(audioEl);
@@ -1772,6 +1825,16 @@ function updateAudioReactive() {
   const targetBass = avg(0, 6);
   const targetMid  = avg(6, 40);
   const targetHigh = avg(41, 90);
+
+  const bassFlux = Math.max(0, targetBass - audioReactive.rawBassPrev);
+  const midFlux  = Math.max(0, targetMid  - audioReactive.rawMidPrev);
+  const highFlux = Math.max(0, targetHigh - audioReactive.rawHighPrev);
+  audioReactive.rawBassPrev = targetBass;
+  audioReactive.rawMidPrev  = targetMid;
+  audioReactive.rawHighPrev = targetHigh;
+  audioReactive.bassFlux = Math.max(audioReactive.bassFlux * 0.72, Math.min(1, bassFlux * 7.2));
+  audioReactive.midFlux  = Math.max(audioReactive.midFlux  * 0.76, Math.min(1, midFlux  * 6.2));
+  audioReactive.highFlux = Math.max(audioReactive.highFlux * 0.80, Math.min(1, highFlux * 5.4));
 
   // Smooth in JS (on top of Web Audio's own smoothing):
   // attack fast, decay slower — feels punchy but not twitchy
@@ -1816,6 +1879,7 @@ function updateAudioReactive() {
   const PLAYLIST = [
     { src: 'Music/chromedream.mp3', label: 'CHROMEDREAM' },
 	{ src: 'Music/signal.mp3', label: 'SIGNAL' },
+	{ src: 'Music/thaw.mp3', label: 'THAW' },
     { src: 'Music/monochromerain.mp3',  label: 'MONOCHROMERAIN'},
 	{ src: 'Music/liquiddrifter.mp3',  label: 'LIQUIDDRIFTER'},
 	{ src: 'Music/silversky.mp3',  label: 'SILVERSKY'}
@@ -1854,7 +1918,7 @@ function updateAudioReactive() {
 
   function setVolumeFill(pct) {
     volumeEl.style.background =
-      `linear-gradient(to right, rgba(255,34,34,0.85) ${pct}%, rgba(255,255,255,0.22) ${pct}%)`;
+      `linear-gradient(to right, var(--accent) ${pct}%, rgba(255,255,255,0.22) ${pct}%)`;
   }
 
   function setSourcePanelOpen(open) {
@@ -2040,7 +2104,7 @@ function renderGlitchText(chars, corrupted, decorate) {
   for (let i = 0; i < chars.length; i++) {
     const char = escapeHtml(chars[i]);
     const html = corrupted.has(i)
-      ? `<span style="color:#ff2222">${char}</span>`
+      ? `<span style="color:var(--accent)">${char}</span>`
       : char;
     out += decorate ? decorate(chars[i], html, i) : html;
   }
